@@ -25,29 +25,30 @@ ax.imshow(X, cmap=cm.jet)#, interpolation='nearest')
 print X
 plt.show()
 lev=np.linspace(0,0,256)
+lev2=np.linspace(0,10000,256)
+
 for i in range(0,256):
-	lev[i]=0.1*np.exp(i*1.0/256*np.log(1e8/0.1))
-for i in range(0,100,10):
-	num=i
+	lev[i]=0.0001*np.exp(i*1.0/256*np.log(1e3/0.0001))
+for i in range(0,1000,5):
+	num=i*1;
 #dens[0],dens[1],dens[2],dens[3],dens[4],dens[5],dens[6],dens[7],dens[8],dens[9],dens[10]=readcol("out_sigma"+str(num)+".txt",twod=False)
 	dens=readcol("out_sigma"+str(num)+".txt",twod=False)
 #	dens=np.loadtxt("out_sigma"+str(num)+".txt")
-#	print dens
-	for i in range(41):
-		for j in range(40):
-			dens[i][j]=dens[i][j]+1.0
+	print np.shape(dens)
+	for i in range(n_size):
+		for j in range(n_rad):
+			if(dens[i][j]<=1e-3 or True): dens[i][j]+=0.0001
 #	plt.scatter(rad,size,c=dens)
-	plt.imshow(dens,cmap=plt.cm.jet,interpolation='nearest')
+#	plt.imshow(dens,cmap=plt.cm.jet,interpolation='nearest')
 #	plt.yscale("log")
 #	plt.xlabel("r (AU)")
 #	plt.ylabel("size (cm)")
 #	plt.colorbar(label="\Sigma")
-	plt.show()
-	
-	plt.contourf(rad,size,dens,cmap=plt.cm.jet,norm = LogNorm(),levels=lev)
+#	plt.show()	
+	plt.contourf(rad,size,dens,cmap=plt.cm.jet,levels=lev,norm = LogNorm())
 #	plt.scatter(rad,size,c=dens,facecolor=None)
 	plt.yscale("log")
         plt.xlabel("r (AU)")
         plt.ylabel("size (cm)")
-        plt.colorbar(label="\Sigma")
+        plt.colorbar(label="\Sigma",ticks=[0.001,0.01,0.1,1,10,100,1000,10000])
         plt.show()

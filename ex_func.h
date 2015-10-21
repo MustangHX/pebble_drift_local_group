@@ -6,5 +6,6 @@ double density(double argc);
 double sound_sp(double argc);
 double viscosity(double argc);
 double mean_path( double argc);
+double vr_estimate(double argc1,double argc2,double *argc3);
 int drift_t(PEBBLE *argc1, double argc2, int argc3);
 void Init();
