@@ -13,11 +13,10 @@
 #include "global_var.h"
 double pp_vr_tau[2]={0.0};
 int main(){
-	int i,j,k,n,i_new,j_new,offset_time=0,num_step=0,tot_num_step=100000,check;
-	double AREA,dr=0.25,a_pb1,a_pb2,a_max,vol_plus,delta_r,frac,tau,vr0;
-	double coag_eff=100;
-	coag_eff=1.0;
-	FILE *fp;
+	int i,j,k,n,i_new,j_new,offset_time=0,num_step=0,tot_num_step=10000,check;
+	double AREA,dr=size_ring,a_pb1,a_pb2,a_max,vol_plus,delta_r,frac,tau,vr0;
+	double coag_eff=1.0,tot_mass=0.0;
+	FILE *fp,*fp2;
 	char outname[256];
 	char output_peb[256];
 	n=0;
@@ -31,6 +30,17 @@ int main(){
 		}
 	}*/
 	Init();
+        fp=fopen("size_chart.txt","w");
+        for(i=0;i<peb_size_num;i++){
+                fprintf(fp,"%f\n",peb_map[0].size[i]);
+	        }
+        fclose(fp);
+	        fp=fopen("rad_chart.txt","w");
+        for(i=0;i<ring_num;i++){
+                fprintf(fp,"%f\n",peb_map[i].rad);
+	        }
+        fclose(fp);
+
 	num_step=0;
 	while (num_step<tot_num_step)
 	{
@@ -64,21 +74,23 @@ int main(){
 		if(a_pb2 >a_max && check==0){
 			a_pb2=2.55*mean_path(peb_map[i].rad);
 		}
-		i_new=i-(int)(delta_r/dr)-1;
+		i_new=i-floor(delta_r/dr)-1;
+		if(i_new<0) i_new=0;
 		j_new=floor(log10(a_pb2/0.1)/size_step);
+		if(log10(a_pb2/0.1)/size_step-j_new*1.0 >=0.5) j_new+=1;
 		if(j_new <0) j_new=0;
 		else if(j_new >peb_size_num-1) {
 			j_new=peb_size_num-1;
 //			printf("maximum size %e\t%e\t%e\n",2.55*mean_path(peb_map[i].rad),vr0,tau);
 		}
-		frac=delta_r/dr-(int)(delta_r/dr);
-		if(i_new<0)	i_new=0;
+		frac=delta_r/dr-floor(delta_r/dr);
 		peb_map[i_new].mass_in[j_new]+=frac*peb_map[i].mass_out[j];
 		if(delta_r/dr>1.0){
 		peb_map[i_new+1].mass_in[j_new]+=(1.0-frac)*peb_map[i].mass_out[j];
 		peb_map[i].mass_out[j]-=peb_map[i].mass_out[j];
 		}
 		else {
+//				peb_map[i].mass_in[j_new]+=(1.0-frac)*peb_map[i].mass_out[j];
                 peb_map[i].mass_out[j]-=frac*peb_map[i].mass_out[j];
 		}
 	}
@@ -87,41 +99,40 @@ int main(){
         for(j=0;j<peb_size_num;j++){
 		peb_map[i].mass_out[j]+=peb_map[i].mass_in[j];
 		peb_map[i].mass_in[j]=0.0;
-		AREA=M_PI*((peb_map[i].rad+0.125)*(peb_map[i].rad+0.125)-(peb_map[i].rad-0.125)*(peb_map[i].rad-0.125))*LUNIT*LUNIT;
-		if(1 && j==0 || 0) {
-			peb_map[i].mass_out[j]=1.0*AREA*dust_budget[i].surf_dens*exp(-1.0*peb_map[i].size[j]/1.0)*exp(0.0*num_step/100);
+		AREA=M_PI*((peb_map[i].rad+dr/2.0)*(peb_map[i].rad+dr/2.0)-(peb_map[i].rad-dr/2.0)*(peb_map[i].rad-dr/2.0))*LUNIT*LUNIT;
+		if(i==ring_num-1 && j>=0 && 0) {
+			peb_map[i].mass_out[j]=0.2*AREA*dust_budget[i].surf_dens*exp(-1.0*peb_map[i].size[j]/0.1)*exp(0.0*num_step/100);
 		}
+		else if(i<ring_num-1 && j<10 && 0){
+                        peb_map[i].mass_out[j]=0.1*AREA*dust_budget[i].surf_dens*exp(-1.0*peb_map[i].size[j]/0.1)*exp(0.0*num_step/100);
+		}
+
 		else peb_map[i].surf_dens[j]+=1e-200;
 		peb_map[i].surf_dens[j]=peb_map[i].mass_out[j]/AREA;
 	}
 	}
+	//frag();
 	num_step++;
-	if(num_step%1==0){
+	if(num_step%10==0){
+		tot_mass=0.0;
         sprintf(outname,"out_sigma%d.txt",num_step);
         fp=fopen(outname,"w");
+		fp2=fopen("mass_check.txt","a+");
         for(i=0;i<ring_num;i++){
         for(j=0;j<peb_size_num;j++){
 		if(peb_map[i].surf_dens[j] < 1e-200) peb_map[i].surf_dens[j]=1e-200;
         fprintf(fp,"%e\t",peb_map[i].surf_dens[j]);
+		tot_mass+=peb_map[i].mass_out[j];
 	}
         fprintf(fp,"\n");		
 	}
+		fprintf(fp2,"%e\n",tot_mass);
 	fclose(fp);
+	fclose(fp2);
 	printf("%f finished\r",1.0*num_step/tot_num_step);
 	}
 
 	}
-        fp=fopen("size_chart.txt","w");
-        for(i=0;i<peb_size_num;i++){
-                fprintf(fp,"%f\n",peb_map[0].size[i]);
-        }
-        fclose(fp);
-        fp=fopen("rad_chart.txt","w");
-        for(i=0;i<peb_num;i++){
-                fprintf(fp,"%f\n",peb_map[i].rad);
-        }
-        fclose(fp);
-
 
 
 
