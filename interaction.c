@@ -4,20 +4,23 @@
 #include<math.h>
 void frag(){
 int i,j,k,jl,js;
-double size_lim,frac,AREA,dr;
+double size_lim,frac,AREA,dr,delta_mass;
 dr=size_ring;
 for(i=ring_num-1;i>=0;i--){
 	for(j=peb_size_num-1;j>=0;j--){
-		size_lim=2.55*mean_path(peb_map[i].rad);		
+		size_lim=2.25*mean_path(peb_map[i].rad);		
 		if(peb_map[i].size[j] > 0.8*size_lim){
 			jl=j;
 			js=floor(log10(peb_map[i].size[jl]/0.1/2.0)/size_step);
+//			js=jl;
 			if(js <0) js=0;
 			frac=peb_map[i].size[jl]/size_lim;
 			frac=frac*0.9;
 			if (frac >1.0) frac=1.0;
-			peb_map[i].mass_out[jl]-=peb_map[i].mass_out[j]*frac;
-			peb_map[i].mass_out[js]+=peb_map[i].mass_out[j]*frac;
+			//frac=0.0;
+			delta_mass=peb_map[i].mass_out[j]*frac;
+			peb_map[i].mass_out[jl]-=delta_mass;
+			peb_map[i].mass_out[js]+=delta_mass;
 	}
 }
 }
