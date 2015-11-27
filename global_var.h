@@ -16,7 +16,8 @@ typedef struct PEBBLE_MAP{
         double dr;
 	double rad;
 	double time;
-        double size[peb_size_num];
+        double size[peb_size_num+1];
+	double size_med[peb_size_num];
 	double mass_in[peb_size_num];
 	double mass_out[peb_size_num];
         double surf_dens[peb_size_num];
@@ -26,7 +27,8 @@ typedef struct PEBBLE_MAP{
 typedef struct DUST_MAP{
         double dr;
         double rad;
-        double surf_dens;
+        double surf_dens[peb_size_num];
+	double rho[peb_size_num];
 } DUST_MAP;
 extern PEBBLE peb_group[peb_num];
 extern PEBBLE_MAP peb_map[ring_num];

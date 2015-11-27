@@ -620,7 +620,7 @@ int drift(double r_start, double a_pebble, double coag_eff)
 
 
 
-int drift_t(PEBBLE *pp, double coag_eff, int num)
+/*int drift_t(PEBBLE *pp, double coag_eff, int num)
 {
 
     int i=0,j=0,k=0,l=0,ll=0,zone_num1,zone_num2;
@@ -828,11 +828,11 @@ int drift_t(PEBBLE *pp, double coag_eff, int num)
 	}
 		
 	    
-/*            pp->vr[ll]=vr0;
+            pp->vr[ll]=vr0;
 	    pp->size[ll+1]=a_pb2;
 	    pp->rad[ll+1]=x;
 	    pp->time[ll+1]=time_tot;
-	    pp->mass[ll+1]=pow(pp->size[ll+1]/pp->size[0],3)*pp->mass[0];*/
+	    pp->mass[ll+1]=pow(pp->size[ll+1]/pp->size[0],3)*pp->mass[0];
 //            fprintf(fp_peb,"%2.12g\t%2.12g\t%2.12g\t%2.12g\n",pp->rad[ll],pp->time[ll],pp->size[ll],pp->mass[ll]);
 	    ll++;
     }
@@ -857,4 +857,4 @@ int drift_t(PEBBLE *pp, double coag_eff, int num)
     sum1=sum1*AU_km/yr_sec;
 
 return 0;
-}
+}*/

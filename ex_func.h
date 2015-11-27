@@ -10,3 +10,7 @@ double vr_estimate(double argc1,double argc2,double *argc3);
 int drift_t(PEBBLE *argc1, double argc2, int argc3);
 void Init();
 void frag();
+void Restart(int argc);
+void grow_1();
+void grow_3();
+void grow_3b();
