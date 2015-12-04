@@ -16,12 +16,12 @@ int main(argc, argv)
 	int argc;
 	char *argv[];
 {
-	int i,j,k,n,i_new,j_new,offset_time=0,num_step=0,tot_num_step=(int)(time_yr*1.0/dt),check,NbRestart;
+	int i,j,k,n,i_new,j_new,offset_time=0,num_step=0,tot_num_step=(int)(time_yr*1.0/outp_step),check,NbRestart;
 	double AREA,dr=size_ring,a_pb1,a_max,vol_plus,delta_r,delta_size,d_size,ratio_size,frac,frac_s,tau,vr0,vol1,vol2;
-	double coag_eff=1.0,tot_mass=0.0,out_source=0.0,a_p,r0;
+	double coag_eff=1.0,tot_mass=0.0,out_source=0.0,a_p,r0,dt=outp_step,time_sum=0.0,dt2;
 	
-	FILE *fp,*fp2;
-	char outname[256];
+	FILE *fp,*fp2,*fp3;
+	char outname[256], outname2[256];
 	char output_peb[256];
 	int Restarting = 0,grow_method=3,drift_method=1;;
 	printf("%s\n",argv);
@@ -88,7 +88,7 @@ int main(argc, argv)
 
 	//start time sequence
 		
-	while (num_step<tot_num_step)
+	while (time_sum<tot_num_step*1.0)
 	{
 	if(num_step==0){
         sprintf(outname,"out_sigma%d.txt",num_step);
@@ -102,7 +102,16 @@ int main(argc, argv)
         fclose(fp);
 	}
 	if(grow_method==1){grow_1();}
-	if(grow_method==3){grow_3b();}
+	if(grow_method==3){
+		dt2=dt;
+		dt=grow_3b(dt2);
+		if(dt<0.0) { 
+		printf("Actual time step count:%d\t dt=%f\n",num_step,dt);
+		return 0;
+		}
+	}
+	dust_evolve(dt);
+
 	for(i=ring_num-1;i>-1;i--){
         for(j=0;j<peb_size_num;j++){
 		peb_map[i].mass_out[j]+=peb_map[i].mass_in[j];
@@ -124,11 +133,14 @@ int main(argc, argv)
 	}
 	//frag();
 	num_step++;
-	if(num_step%1==0){
+	time_sum+=dt;
+	if(time_sum-floor(time_sum)<0.00001){
 		tot_mass=0.0;
-        sprintf(outname,"out_sigma%d.txt",num_step);
+        sprintf(outname,"out_sigma%d.txt",(int)time_sum);
         fp=fopen(outname,"w");
-		fp2=fopen("mass_check.txt","a+");
+	sprintf(outname2,"dust_sigma%d.txt",(int)time_sum);
+	fp3=fopen(outname2,"w");
+	fp2=fopen("mass_check.txt","a+");
         for(i=0;i<ring_num;i++){
         for(j=0;j<peb_size_num;j++){
 		if(peb_map[i].surf_dens[j] < 1e-200) peb_map[i].surf_dens[j]=1e-200;
@@ -137,14 +149,21 @@ int main(argc, argv)
 	}
         fprintf(fp,"\n");		
 	}
-		fprintf(fp2,"%2.20g\n",tot_mass);
+	for(i=0;i<ring_num;i++){
+		tot_mass+=dust_budget[i].mass_out;
+	fprintf(fp3,"%e\t%e\n",dust_budget[i].rad,dust_budget[i].surf_dens[0]);
+	}
+	fprintf(fp2,"%2.20g\n",tot_mass);
 	fclose(fp);
 	fclose(fp2);
-	printf("%f finished\r",1.0*num_step/tot_num_step);
+	fclose(fp3);
+	printf("%f finished\r",time_sum/(tot_num_step*1.0));
+	printf("Actual time step count:%d\t dt=%f\t time=%f\n",num_step,dt,time_sum);
 	}
 
 	}
-
+	
+	printf("Actual time step count:%d\t dt=%f\n",num_step,dt);
 
 
 return 0;

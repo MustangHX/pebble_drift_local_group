@@ -57,6 +57,10 @@
 double vr_tau[2]={0.0};
 double tau_temp;
 
+double v_r_gas(double r){
+	return 6.34*pow(r,-0.4);
+}
+
 double v_K(double r){
     return 29.8*100000.0*sqrt(m_star)/sqrt(r);
 }

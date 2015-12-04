@@ -30,13 +30,16 @@ void Init(){
 	
 	for(i=0;i<ring_num;i++){
 		dust_budget[i].rad=i*size_ring+1.0-size_ring;
+		AREA=M_PI*((dust_budget[i].rad+size_ring/2.0)*(dust_budget[i].rad+size_ring/2.0)-(dust_budget[i].rad-size_ring/2.0)*(dust_budget[i].rad-size_ring/2.0))*LUNIT*LUNIT;
 		dust_budget[i].dr=size_ring;
+		dust_budget[i].mass_in=0.0;
 		for(j=0;j<peb_size_num;j++){
-                dust_budget[i].surf_dens[j]=Sigma(dust_budget[i].rad)*0.1;
-		dust_budget[i].rho[j]=density(dust_budget[i].rad)*0.1;
+                dust_budget[i].surf_dens[j]=Sigma(dust_budget[i].rad)*dust_gas;
+		dust_budget[i].rho[j]=density(dust_budget[i].rad)*dust_gas;
 		}
+		dust_budget[i].mass_out=dust_budget[i].surf_dens[0]*AREA;
 	}
-i=0;
+	i=0;
 	for(i=0;i<ring_num;i++){
   //              printf("SIGMAAAAA%e\t%d\t",peb_map[i].surf_dens,i);
 //		printf("%d\n",i);
