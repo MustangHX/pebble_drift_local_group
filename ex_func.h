@@ -13,4 +13,7 @@ void frag();
 void Restart(int argc);
 void grow_1();
 void grow_3();
-void grow_3b();
+double grow_3b();
+double grow_3b2();
+void dust_evolve(double argc);
+double v_r_gas(double argc);
