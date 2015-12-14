@@ -40,7 +40,7 @@ int main(argc, argv)
 	drift(1.0,drag_group(1.0,0.01));
         printf("PPPPeEEEBBBB%.12f\n",drag_group(1.0,0.01));
 
-	Init();
+	Init2();
 	if(Restarting == 1){
 		Restart(NbRestart);
 	}
@@ -51,13 +51,13 @@ int main(argc, argv)
         fclose(fp);
 	        fp=fopen("rad_chart.txt","w");
         for(i=0;i<ring_num;i++){
-                fprintf(fp,"%f\n",peb_map[i].rad+dr/2.0);
+                fprintf(fp,"%f\n",peb_map[i].rad+peb_map[i].dr/2.0);
 	        }
         fclose(fp);
 	out_source=0.0;
 	for(j=0;j<peb_size_num;j++){
 		i=ring_num-1;
-		AREA=M_PI*((peb_map[i].rad+dr/2.0)*(peb_map[i].rad+dr/2.0)-(peb_map[i].rad-dr/2.0)*(peb_map[i].rad-dr/2.0))*LUNIT*LUNIT;
+		AREA=peb_map[i].AREA;
 		out_source+=AREA*exp(-1.0*peb_map[i].size[j]/0.1);
 	}
 
@@ -100,11 +100,20 @@ int main(argc, argv)
         fprintf(fp,"\n");
 	}
         fclose(fp);
+	sprintf(outname2,"dust_sigma%d.txt",(int)time_sum);
+	fp3=fopen(outname2,"w");
+	for(i=0;i<ring_num;i++){
+		tot_mass+=dust_budget[i].mass_out;
+		fprintf(fp3,"%e\t%e\n",dust_budget[i].rad,dust_budget[i].surf_dens[0]);
+	}
+	fclose(fp3);
 	}
 	if(grow_method==1){grow_1();}
 	if(grow_method==3){
 		dt2=dt;
-		dt=grow_3b(dt2);
+		dt=grow_3b2(dt2);
+		//printf("main dt=%f\tdt2=%f\n",dt,dt2);
+		//dt=1.0;
 		if(dt<0.0) { 
 		printf("Actual time step count:%d\t dt=%f\n",num_step,dt);
 		return 0;
@@ -117,7 +126,8 @@ int main(argc, argv)
 		peb_map[i].mass_out[j]+=peb_map[i].mass_in[j];
 		peb_map[i].mass_in[j]=0.0;
 		if(i==0) peb_map[i].mass_out[j]=0.0;
-		AREA=M_PI*((peb_map[i].rad+dr/2.0)*(peb_map[i].rad+dr/2.0)-(peb_map[i].rad-dr/2.0)*(peb_map[i].rad-dr/2.0))*LUNIT*LUNIT;
+		//AREA=M_PI*((peb_map[i].rad+dr/2.0)*(peb_map[i].rad+dr/2.0)-(peb_map[i].rad-dr/2.0)*(peb_map[i].rad-dr/2.0))*LUNIT*LUNIT;
+		AREA=peb_map[i].AREA;
 		
 		if(i==ring_num-1 && 1 && 1) {
 			//peb_map[i].mass_out[j]=0.2*AREA*dust_budget[i].surf_dens*exp(-1.0*peb_map[i].size[j]/0.1)*exp(0.0*num_step/100);

@@ -31,6 +31,7 @@ void Init(){
 	for(i=0;i<ring_num;i++){
 		dust_budget[i].rad=i*size_ring+1.0-size_ring;
 		AREA=M_PI*((dust_budget[i].rad+size_ring/2.0)*(dust_budget[i].rad+size_ring/2.0)-(dust_budget[i].rad-size_ring/2.0)*(dust_budget[i].rad-size_ring/2.0))*LUNIT*LUNIT;
+		dust_budget[i].AREA=AREA;
 		dust_budget[i].dr=size_ring;
 		dust_budget[i].mass_in=0.0;
 		for(j=0;j<peb_size_num;j++){
@@ -46,6 +47,7 @@ void Init(){
 		peb_map[i].dr=size_ring;
 		peb_map[i].rad=i*size_ring+1.0-size_ring;
                 peb_map[i].time=0.0;
+		peb_map[i].AREA=M_PI*((peb_map[i].rad+size_ring/2.0)*(peb_map[i].rad+size_ring/2.0)-(peb_map[i].rad-size_ring/2.0)*(peb_map[i].rad-size_ring/2.0))*LUNIT*LUNIT;
 		for(j=0;j<=peb_size_num;j++){
 			peb_map[i].size[j]=0.1*pow(10,j*size_step);
 		}
@@ -73,6 +75,68 @@ void Init(){
 	}
 }
 
+void Init2(){// disk with variable resolution
+	int i,i2,j;
+	double AREA,size_ring1,size_ring2,rad1,rad2,mass_norm=0.0;//size1 is smaller ring
+        size_ring1=size_ring/10.0;
+        size_ring2=size_ring*10.0;
+			
+	for(i=0;i<ring_num;i++){
+	if(i<i_lim1) {
+		dust_budget[i].rad=i*size_ring1+0.1;
+		dust_budget[i].dr=size_ring1;
+	}
+	if(i>=i_lim1 && i < i_lim2){
+		dust_budget[i].rad=(i-i_lim1)*size_ring+1.0;
+		dust_budget[i].dr=size_ring;
+	}
+	if(i>=i_lim2 && i < ring_num){
+		dust_budget[i].rad=(i-i_lim2)*size_ring2+30.0;
+		dust_budget[i].dr=size_ring2;
+	}
+	}
+	for(i=0;i<ring_num;i++){
+	rad1=dust_budget[i].rad;
+	if(i+1<ring_num) rad2=dust_budget[i+1].rad;
+	else rad2=R_OUT;
+	dust_budget[i].AREA=M_PI*(rad2*rad2-rad1*rad1)*LUNIT*LUNIT;
+	//printf("AREA %g\t%g\n",M_PI*(rad2*rad2-rad1*rad1)*LUNIT*LUNIT,dust_budget[i].AREA);
+	dust_budget[i].rad_med=0.5*(rad1+rad2);
+	dust_budget[i].mass_in=0.0;
+	for(j=0;j<peb_size_num;j++){
+	dust_budget[i].surf_dens[j]=Sigma(dust_budget[i].rad)*dust_gas;
+	dust_budget[i].rho[j]=density(dust_budget[i].rad)*dust_gas;
+	}
+	dust_budget[i].mass_out=dust_budget[i].surf_dens[0]*dust_budget[i].AREA;
+	printf("%d\t%g\n",i,dust_budget[i].surf_dens[0]);
+	}
+	for(i=0;i<ring_num;i++){
+		mass_norm=0.0;
+	peb_map[i].rad=dust_budget[i].rad; 
+	peb_map[i].rad_med=dust_budget[i].rad_med;
+	peb_map[i].dr=dust_budget[i].dr;
+	peb_map[i].AREA=dust_budget[i].AREA;
+	for(j=0;j<=peb_size_num;j++){
+		peb_map[i].size[j]=0.1*pow(10,j*size_step);
+	}
+	for(j=0;j<peb_size_num;j++){
+		peb_map[i].size_med[j]=0.5*(peb_map[i].size[j]+peb_map[i].size[j+1]);
+		if(i==1) printf("SIZE=%fcm\n",peb_map[i].size[j]);
+	}
+	for(j=0;j<10;j++) mass_norm+=exp(-1.0*peb_map[i].size_med[j]);
+        for(j=0;j<peb_size_num;j++){
+		AREA=peb_map[i].AREA;
+		if (j<10|| 0) {
+			peb_map[i].mass_out[j]=0.1*AREA*(dust_budget[i].surf_dens[0]*exp(-1.0*peb_map[i].size_med[j])/mass_norm+1e-10);
+//			peb_map[i].mass_out[j]=0.1*AREA*(dust_budget[i].surf_dens[0]+1e-10);
+		}
+		else peb_map[i].mass_out[j]=1e-20*AREA;
+		//peb_map[i].mass_out[j]/=peb_size_num;//comes from dust_budget
+		peb_map[i].surf_dens[j]=peb_map[i].mass_out[j]/AREA;
+		peb_map[i].mass_in[j]=0.0;
+	}
+	}
+}
 void Restart(int rnum){
 	double AREA,dens;
 	int i,j,k;

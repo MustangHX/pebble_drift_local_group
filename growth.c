@@ -108,9 +108,9 @@ for(i=ring_num-1;i>-1;i--){
 		frac_s=(peb_map[i].mass_out[j]+delta_mass[j]-vol1)/(vol2-vol1);
 		}
 		frac=delta_r/dr-1.0*floor(delta_r/dr);
-		if(delta_r/dr > 0.09) printf("AAATOOLARGE!\n");
+		if(delta_r/dr > 0.09) printf("drAAATOOLARGE!\n");
                 frac_s=delta_size/d_size-1.0*floor(delta_size/d_size);
-		if(delta_size/d_size > 0.2) printf("%f\tAAAATOOOLARGE!\n",delta_size/d_size);
+		if(delta_size/d_size > 0.2) printf("%f\tsizeAAAATOOOLARGE!\n",delta_size/d_size);
 		if(check==1) frac_s=0.0;
 //		if(num_step%100==0 && (i>25 && i < 30) && j==peb_size_num-1){
 //			printf("i=%d i_new=%d j_new=%d frac=%f frac_s=%f\n",i,i_new,j_new,frac,peb_map[i].mass_out[j_new]);
@@ -186,7 +186,7 @@ for(j=0;j<peb_size_num;j++){
 	frac_s=(a_pb2-a_pb3)/(a_pb2-a_pb1);
 //	frac_s=(a_pb22-a_pb2)/(a_pb2-a_pb1);
 	if(a_pb2>a_max) frac_s=0.0;
-	if(frac_s>0.2) printf("%f\t AAAATOOOLLLLARGE\n",frac_s);
+	if(frac_s>0.5) printf("%f\t sizeAAAATOOOLLLLARGE\n",frac_s);
 	vr1=vr_estimate(peb_map[i].rad+dr,(a_pb1+a_pb2)/2.0,pp_vr_tau);
 	vr2=vr_estimate(peb_map[i].rad,(a_pb1+a_pb2)/2.0,pp_vr_tau);
 //	x=dr*(dr-vr2*dt)/(dr+vr1*dt-vr2*dt);
@@ -240,7 +240,9 @@ double grow_3b(double dt0){
 	dr=size_ring;
 	coag_eff=1.0;
 for(i=ring_num-1;i>-1;i--){
-AREA=M_PI*((peb_map[i].rad+dr/2.0)*(peb_map[i].rad+dr/2.0)-(peb_map[i].rad-dr/2.0)*(peb_map[i].rad-dr/2.0))*LUNIT*LUNIT;
+//AREA=M_PI*((peb_map[i].rad+dr/2.0)*(peb_map[i].rad+dr/2.0)-(peb_map[i].rad-dr/2.0)*(peb_map[i].rad-dr/2.0))*LUNIT*LUNIT;
+AREA=peb_map[i].AREA;
+dr=peb_map[i].dr;
 a_max=2.25*mean_path(peb_map[i].rad+dr/2.0);
 ring_mass_before=0.0;
 ring_mass_after=0.0;
@@ -271,7 +273,7 @@ for(j=0;j<peb_size_num;j++){
 	frac_s=(a_pb2-a_pb3)/(a_pb2-a_pb1);
 //	frac_s=(a_pb22-a_pb2)/(a_pb2-a_pb1);
 	if(a_pb2>a_max) frac_s=0.0;
-	if(frac_s>0.2) printf("%f\t AAAATOOOLLLLARGE\n",frac_s);
+	if(frac_s>0.5) printf("%f\t %d\t%d\tsizeTOOLARGE\n",frac_s,i,j);
 	vr1=vr_estimate(peb_map[i].rad+dr,(a_pb1+a_pb2)/2.0,pp_vr_tau);
 	vr2=vr_estimate(peb_map[i].rad,(a_pb1+a_pb2)/2.0,pp_vr_tau);
 //	x=dr*(dr-vr2*dt0)/(dr+vr1*dt0-vr2*dt0);
@@ -345,13 +347,197 @@ else dt_new=1.0*dt0;
 return dt_new;
 }
 
+double grow_3b2(double dt0){ //testing variable timestep
+	int i,j,i_new,j_new;
+	double a_pb1,a_pb11,a_pb2,a_pb22,a_pb3,vr0,vr1,vr2,AREA,dr,a_max,dt_new,dt1,sub_time1;
+	double tau,vol_plus,frac,frac_s,coag_eff,ratio_size,ring_mass_before,ring_mass_after,old_sigma,ratio_sigma=1.0,dust_flow=0.0;
+	double peb_flow[peb_size_num]={0.0};
+	dr=size_ring;
+	coag_eff=1.0;
+for(i=ring_num-1;i>=i_lim1;i--){
+AREA=peb_map[i].AREA;
+dr=peb_map[i].dr;
+a_max=2.25*mean_path(peb_map[i].rad+dr/2.0);
+ring_mass_before=0.0;
+ring_mass_after=0.0;
+for(j=0;j<peb_size_num;j++){
+	ring_mass_before+=peb_map[i].mass_out[j];
+}
+for(j=0;j<peb_size_num;j++){
+	a_pb1=peb_map[i].size[j];
+	vr0=vr_estimate(peb_map[i].rad+dr/2.0,a_pb1,pp_vr_tau);
+	tau=pp_vr_tau[1];
+	if(a_pb1>a_max) vol_plus=0.0;
+	else{
+	vol_plus=1.0*M_PI*a_pb1*a_pb1*sqrt(vr0*vr0+0.25*tau*vr0*tau*vr0)*dt0*TUNIT;
+	}
+	a_pb11=pow(((vol_plus*coag_eff*dust_budget[i].rho[0]/rho_peb0+4.0/3.0*M_PI*a_pb1*a_pb1*a_pb1)*3.0/4.0/M_PI),1.0/3.0);
+	if(a_pb1<a_max && a_pb11>a_max) a_pb11=a_max;
+	a_pb2=peb_map[i].size[j+1];
+        vr0=vr_estimate(peb_map[i].rad+dr/2.0,a_pb2,pp_vr_tau);
+	tau=pp_vr_tau[1];
+	if(a_pb2>a_max || dust_budget[i].surf_dens[0]< 1e-10) vol_plus=0.0;
+	else{
+		vol_plus=1.0*M_PI*a_pb2*a_pb2*sqrt(vr0*vr0+0.25*tau*vr0*tau*vr0)*dt0*TUNIT;
+	}
+	a_pb22=pow(((vol_plus*coag_eff*dust_budget[i].rho[0]/rho_peb0+4.0/3.0*M_PI*a_pb2*a_pb2*a_pb2)*3.0/4.0/M_PI),1.0/3.0);
+	if(a_pb2<a_max && a_pb22>a_max) a_pb22=a_max;
+
+	a_pb3=(a_pb2-a_pb1)/(a_pb22-a_pb11)*(a_pb2-a_pb11)+a_pb1;
+	frac_s=(a_pb2-a_pb3)/(a_pb2-a_pb1);
+//	frac_s=(a_pb22-a_pb2)/(a_pb2-a_pb1);
+	if(a_pb2>a_max) frac_s=0.0;
+	if(frac_s>0.5) printf("%f\t %d\t%d\t sizeTOOLARGE_middle\n",frac_s,i,j);
+	vr1=vr_estimate(peb_map[i].rad+dr,(a_pb1+a_pb2)/2.0,pp_vr_tau);
+	vr2=vr_estimate(peb_map[i].rad,(a_pb1+a_pb2)/2.0,pp_vr_tau);
+//	x=dr*(dr-vr2*dt0)/(dr+vr1*dt0-vr2*dt0);
+//	frac=(dr-x)/dr;
+	frac=1.0-(dr-vr2*dt0*TUNIT/LUNIT)/(dr+vr1*dt0*TUNIT/LUNIT-vr2*dt0*TUNIT/LUNIT);
+	//frac=vr2*dt0*TUNIT/LUNIT/dr;
+	j_new=j+1;
+	if(a_pb2>a_max || j_new>peb_size_num-1) {j_new=j; frac_s=0.0;}
+	i_new=i-1;
+	if(i_new<i_lim1) {//i_new=0;
+		peb_flow[j_new]+=pow(a_pb22/a_pb2,3)*frac*frac_s*peb_map[i].mass_out[j];
+		ring_mass_after+=pow(a_pb22/a_pb2,3)*frac*frac_s*peb_map[i].mass_out[j];
+		peb_map[i].mass_in[j_new]+=pow(a_pb22/a_pb2,3)*(1.0-frac)*frac_s*peb_map[i].mass_out[j];
+		ring_mass_after+=pow(a_pb22/a_pb2,3)*(1.0-frac)*frac_s*peb_map[i].mass_out[j];
+		peb_flow[j]+=pow(a_pb2/a_pb3,3)*frac*(1.0-frac_s)*peb_map[i].mass_out[j];
+		ring_mass_after+=pow(a_pb2/a_pb3,3)*frac*(1.0-frac_s)*peb_map[i].mass_out[j];
+		peb_map[i].mass_in[j]+=pow(a_pb2/a_pb3,3)*(1.0-frac)*(1.0-frac_s)*peb_map[i].mass_out[j];
+		ring_mass_after+=pow(a_pb2/a_pb3,3)*(1.0-frac)*(1.0-frac_s)*peb_map[i].mass_out[j];
+		peb_map[i].mass_out[j]-=peb_map[i].mass_out[j];
+	}
+	else{
+		peb_map[i_new].mass_in[j_new]+=pow(a_pb22/a_pb2,3)*frac*frac_s*peb_map[i].mass_out[j];
+		ring_mass_after+=pow(a_pb22/a_pb2,3)*frac*frac_s*peb_map[i].mass_out[j];
+		peb_map[i].mass_in[j_new]+=pow(a_pb22/a_pb2,3)*(1.0-frac)*frac_s*peb_map[i].mass_out[j];
+		ring_mass_after+=pow(a_pb22/a_pb2,3)*(1.0-frac)*frac_s*peb_map[i].mass_out[j];
+		peb_map[i_new].mass_in[j]+=pow(a_pb2/a_pb3,3)*frac*(1.0-frac_s)*peb_map[i].mass_out[j];
+		ring_mass_after+=pow(a_pb2/a_pb3,3)*frac*(1.0-frac_s)*peb_map[i].mass_out[j];
+		peb_map[i].mass_in[j]+=pow(a_pb2/a_pb3,3)*(1.0-frac)*(1.0-frac_s)*peb_map[i].mass_out[j];
+		ring_mass_after+=pow(a_pb2/a_pb3,3)*(1.0-frac)*(1.0-frac_s)*peb_map[i].mass_out[j];
+		peb_map[i].mass_out[j]-=peb_map[i].mass_out[j];
+	}
+}
+for(j=0;j<1;j++){
+	old_sigma=dust_budget[i].surf_dens[0];
+	dust_budget[i].mass_out-=(ring_mass_after-ring_mass_before);
+	dust_budget[i].surf_dens[0]-=(ring_mass_after-ring_mass_before)/AREA;
+	dust_budget[i].rho[0]=dust_budget[i].rho[0]*dust_budget[i].surf_dens[0]/old_sigma;
+	if(ratio_sigma>dust_budget[i].surf_dens[0]/old_sigma) ratio_sigma=dust_budget[i].surf_dens[0]/old_sigma;
+	if(dust_budget[i].surf_dens[0]<0.0) return -1.0;
+}
+}
+
+dt1=dt0/10.0;
+sub_time1=0.0;
+while(dt0-sub_time1>dt1/10.0){
+sub_time1+=dt1;
+for(j=0;j<peb_size_num;j++){
+peb_map[i_lim1-1].mass_in[j]+=peb_flow[j]/10.0;
+}
+for(i=i_lim1-1;i>-1;i--){
+AREA=peb_map[i].AREA;
+dr=peb_map[i].dr;
+a_max=2.25*mean_path(peb_map[i].rad+dr/2.0);
+ring_mass_before=0.0;
+ring_mass_after=0.0;
+for(j=0;j<peb_size_num;j++){
+	ring_mass_before+=peb_map[i].mass_out[j];
+}
+for(j=0;j<peb_size_num;j++){
+	a_pb1=peb_map[i].size[j];
+	vr0=vr_estimate(peb_map[i].rad+dr/2.0,a_pb1,pp_vr_tau);
+	tau=pp_vr_tau[1];
+	if(a_pb1>a_max) vol_plus=0.0;
+	else{
+	vol_plus=1.0*M_PI*a_pb1*a_pb1*sqrt(vr0*vr0+0.25*tau*vr0*tau*vr0)*dt1*TUNIT;
+	}
+	a_pb11=pow(((vol_plus*coag_eff*dust_budget[i].rho[0]/rho_peb0+4.0/3.0*M_PI*a_pb1*a_pb1*a_pb1)*3.0/4.0/M_PI),1.0/3.0);
+	if(a_pb1<a_max && a_pb11>a_max) a_pb11=a_max;
+	a_pb2=peb_map[i].size[j+1];
+        vr0=vr_estimate(peb_map[i].rad+dr/2.0,a_pb2,pp_vr_tau);
+	tau=pp_vr_tau[1];
+	if(a_pb2>a_max || dust_budget[i].surf_dens[0]< 1e-10) vol_plus=0.0;
+	else{
+		vol_plus=1.0*M_PI*a_pb2*a_pb2*sqrt(vr0*vr0+0.25*tau*vr0*tau*vr0)*dt1*TUNIT;
+	}
+	a_pb22=pow(((vol_plus*coag_eff*dust_budget[i].rho[0]/rho_peb0+4.0/3.0*M_PI*a_pb2*a_pb2*a_pb2)*3.0/4.0/M_PI),1.0/3.0);
+	if(a_pb2<a_max && a_pb22>a_max) a_pb22=a_max;
+
+	a_pb3=(a_pb2-a_pb1)/(a_pb22-a_pb11)*(a_pb2-a_pb11)+a_pb1;
+	frac_s=(a_pb2-a_pb3)/(a_pb2-a_pb1);
+//	frac_s=(a_pb22-a_pb2)/(a_pb2-a_pb1);
+	if(a_pb2>a_max) frac_s=0.0;
+	if(frac_s>0.5) printf("%f\t %d\t%d\nsizeAAAATOOOLLLLARGE\n",frac_s,i,j);
+	vr1=vr_estimate(peb_map[i].rad+dr,(a_pb1+a_pb2)/2.0,pp_vr_tau);
+	vr2=vr_estimate(peb_map[i].rad,(a_pb1+a_pb2)/2.0,pp_vr_tau);
+//	x=dr*(dr-vr2*dt0)/(dr+vr1*dt0-vr2*dt0);
+//	frac=(dr-x)/dr;
+	frac=1.0-(dr-vr2*dt1*TUNIT/LUNIT)/(dr+vr1*dt1*TUNIT/LUNIT-vr2*dt1*TUNIT/LUNIT);
+	//frac=vr2*dt0*TUNIT/LUNIT/dr;
+	j_new=j+1;
+	if(a_pb2>a_max || j_new>peb_size_num-1) {j_new=j; frac_s=0.0;}
+	i_new=i-1;
+	if(i_new<0) i_new=0;
+	peb_map[i_new].mass_in[j_new]+=pow(a_pb22/a_pb2,3)*frac*frac_s*peb_map[i].mass_out[j];
+	ring_mass_after+=pow(a_pb22/a_pb2,3)*frac*frac_s*peb_map[i].mass_out[j];
+	peb_map[i].mass_in[j_new]+=pow(a_pb22/a_pb2,3)*(1.0-frac)*frac_s*peb_map[i].mass_out[j];
+	ring_mass_after+=pow(a_pb22/a_pb2,3)*(1.0-frac)*frac_s*peb_map[i].mass_out[j];
+	peb_map[i_new].mass_in[j]+=pow(a_pb2/a_pb3,3)*frac*(1.0-frac_s)*peb_map[i].mass_out[j];
+	ring_mass_after+=pow(a_pb2/a_pb3,3)*frac*(1.0-frac_s)*peb_map[i].mass_out[j];
+	peb_map[i].mass_in[j]+=pow(a_pb2/a_pb3,3)*(1.0-frac)*(1.0-frac_s)*peb_map[i].mass_out[j];
+	ring_mass_after+=pow(a_pb2/a_pb3,3)*(1.0-frac)*(1.0-frac_s)*peb_map[i].mass_out[j];
+	peb_map[i].mass_out[j]-=peb_map[i].mass_out[j];
+
+}
+for(j=0;j<1;j++){
+	old_sigma=dust_budget[i].surf_dens[0];
+	dust_budget[i].mass_out-=(ring_mass_after-ring_mass_before);
+	dust_budget[i].surf_dens[0]-=(ring_mass_after-ring_mass_before)/AREA;
+	dust_budget[i].rho[0]=dust_budget[i].rho[0]*dust_budget[i].surf_dens[0]/old_sigma;
+	if(ratio_sigma>dust_budget[i].surf_dens[0]/old_sigma) ratio_sigma=dust_budget[i].surf_dens[0]/old_sigma;
+	if(dust_budget[i].surf_dens[0]<0.0) return -1.0;
+}
+}
+        for(i=i_lim1;i>-1;i--){
+        for(j=0;j<peb_size_num;j++){
+                peb_map[i].mass_out[j]+=peb_map[i].mass_in[j];
+                peb_map[i].mass_in[j]=0.0;
+		peb_map[i].surf_dens[j]=peb_map[i].mass_out[j]/peb_map[i].AREA;
+	}
+	}
+
+}
+
+if(ratio_sigma<0.7 && ratio_sigma > 0.4) {
+	dt_new=0.5*dt0;
+	printf("dust_ratio=%f\n",ratio_sigma);
+}
+else if(ratio_sigma <= 0.4 && ratio_sigma > 0.2) {
+
+        dt_new=0.25*dt0;
+        printf("dust_ratio=%f\n",ratio_sigma);
+}
+
+else if(ratio_sigma <= 0.2) {
+	dt_new=0.125*dt0;
+	printf("dust_ratio=%f\n",ratio_sigma);
+}
+else dt_new=1.0*dt0;
+//printf("dt=%f\tdt_new=%f\n",dt0,dt_new);
+return 1.0;
+}
+
 void dust_evolve(double dt0){
+
 int i,i_new,j;
 double vr_gas, AREA,old_sigma,frac;
 dust_budget[ring_num-1].mass_out+=mdot*MSUN*dt0*dust_gas;
 for(i=ring_num-1;i>-1;i--){
 	vr_gas=v_r_gas(dust_budget[i].rad)*1;	
-	frac=vr_gas*dt0*TUNIT/LUNIT/size_ring;
+	frac=vr_gas*dt0*TUNIT/LUNIT/dust_budget[i].dr;
 	i_new=i-1;
 //	frac=0.0;
 	if(i_new<0) i_new=0;
@@ -361,6 +547,7 @@ for(i=ring_num-1;i>-1;i--){
 
 for(i=ring_num-1;i>-1;i--){
 	AREA=M_PI*((dust_budget[i].rad+size_ring/2.0)*(dust_budget[i].rad+size_ring/2.0)-(dust_budget[i].rad-size_ring/2.0)*(dust_budget[i].rad-size_ring/2.0))*LUNIT*LUNIT;	
+	AREA=dust_budget[i].AREA;
 	dust_budget[i].mass_out+=dust_budget[i].mass_in;
 	dust_budget[i].mass_in=0.0;
 	if(i==0) dust_budget[i].mass_out=0.0;
