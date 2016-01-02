@@ -120,6 +120,7 @@ int main(argc, argv)
 		}
 	}
 	dust_evolve(dt);
+	//coagulation(dt);
 
 	for(i=ring_num-1;i>-1;i--){
         for(j=0;j<peb_size_num;j++){
@@ -139,6 +140,8 @@ int main(argc, argv)
 
 		else peb_map[i].surf_dens[j]+=1e-200;
 		peb_map[i].surf_dens[j]=peb_map[i].mass_out[j]/AREA;
+		peb_map[i].rho[j]=peb_map[i].surf_dens[j]/sqrt(2.0*M_PI)/peb_map[i].hei[j];
+		//printf("peb_rho=%e\t%e\t",peb_map[i].rho[j],peb_map[i].surf_dens[j]);
 	}
 	}
 	//frag();

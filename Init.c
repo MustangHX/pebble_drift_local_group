@@ -6,6 +6,12 @@
 double Sigma (double r){
 	return 108*pow(r,-0.6);
 }
+
+double height(double r){
+	return 0.033*pow(r,1.05);
+}
+double pp_vr_tau1[2]={0.0};
+
 void Init(){
 	int i,j;
 	double AREA;
@@ -56,9 +62,9 @@ void Init(){
 			if(i==1) printf("SIZE=%fcm\n",peb_map[i].size[j]);
 				//drag_group((i+1)*0.25,0.01*(j+1));
 			AREA=M_PI*((peb_map[i].rad+size_ring/2.0)*(peb_map[i].rad+size_ring/2.0)-(peb_map[i].rad-size_ring/2.0)*(peb_map[i].rad-size_ring/2.0))*LUNIT*LUNIT;
-			if (j<1 && i==ring_num-1|| 1) {
+			if ((j<1 && i==ring_num-1)|| 1) {
 				//peb_map[i].mass_out[j]=0.1*AREA*0.01*(Sigma((i+4)*0.25)*exp(-1.0*peb_map[i].size[j]/0.1)+1e-10);
-				peb_map[i].mass_out[j]=1.0*AREA*(dust_budget[i].surf_dens[0]*exp(-1.0*peb_map[i].size_med[j]/0.1)+1e-10);
+				peb_map[i].mass_out[j]=1.0*AREA*(0.01*Sigma(peb_map[i].rad_med)*exp(-1.0*peb_map[i].size_med[j]/0.1)+1e-10);
 			}
 			else peb_map[i].mass_out[j]=1e-20*AREA;
 			peb_map[i].mass_out[j]/=peb_size_num;//comes from dust_budget
@@ -76,9 +82,11 @@ void Init(){
 }
 
 void Init2(){// disk with variable resolution
-	int i,i2,j;
-	double AREA,size_ring1,size_ring2,rad1,rad2,mass_norm=0.0;//size1 is smaller ring
-        size_ring1=size_ring/10.0;
+	int i,i2,j,jj;
+	double tau,AREA,size_ring1,size_ring2,rad1,rad2,mass_norm=0.0;//size1 is smaller ring
+	double v1,v2,delta_v;
+	FILE *fp;
+	size_ring1=size_ring/10.0;
         size_ring2=size_ring*10.0;
 			
 	for(i=0;i<ring_num;i++){
@@ -117,25 +125,46 @@ void Init2(){// disk with variable resolution
 	peb_map[i].dr=dust_budget[i].dr;
 	peb_map[i].AREA=dust_budget[i].AREA;
 	for(j=0;j<=peb_size_num;j++){
-		peb_map[i].size[j]=0.1*pow(10,j*size_step);
+		peb_map[i].size[j]=size_min*pow(10,j*size_step);
 	}
 	for(j=0;j<peb_size_num;j++){
 		peb_map[i].size_med[j]=0.5*(peb_map[i].size[j]+peb_map[i].size[j+1]);
 		if(i==1) printf("SIZE=%fcm\n",peb_map[i].size[j]);
+        	peb_map[i].vr[j]=vr_estimate(peb_map[i].rad_med,peb_map[i].size_med[j],pp_vr_tau1);
+                tau=pp_vr_tau1[1];
+                peb_map[i].vt[j]=0.5*tau*peb_map[i].vr[j];
+		peb_map[i].hei[j]=height(peb_map[i].rad_med)*LUNIT/sqrt(1+tau/alpha0);
+		if(j==0) printf("hei=%e\t%f\n",peb_map[i].hei[j],peb_map[i].rad_med);
+        
 	}
-	for(j=0;j<10;j++) mass_norm+=exp(-1.0*peb_map[i].size_med[j]);
+	for(j=0;j<20;j++) mass_norm+=exp(-1.0*peb_map[i].size_med[j]);
         for(j=0;j<peb_size_num;j++){
 		AREA=peb_map[i].AREA;
-		if (j<10|| 0) {
-			peb_map[i].mass_out[j]=0.1*AREA*(dust_budget[i].surf_dens[0]*exp(-1.0*peb_map[i].size_med[j])/mass_norm+1e-10);
+		if (j<10 && i > 4) {
+			peb_map[i].mass_out[j]=peb_dust*AREA*(dust_budget[i].surf_dens[0]*exp(-1.0*peb_map[i].size_med[j])/mass_norm+1e-10);
+			//peb_map[i].mass_out[j]=peb_dust*AREA*(0.1*Sigma(peb_map[i].rad_med)*exp(-1.0*peb_map[i].size_med[j])/mass_norm+1e-10);
 //			peb_map[i].mass_out[j]=0.1*AREA*(dust_budget[i].surf_dens[0]+1e-10);
 		}
 		else peb_map[i].mass_out[j]=1e-20*AREA;
 		//peb_map[i].mass_out[j]/=peb_size_num;//comes from dust_budget
 		peb_map[i].surf_dens[j]=peb_map[i].mass_out[j]/AREA;
+		peb_map[i].rho[j]=peb_map[i].surf_dens[j]/sqrt(2.0*M_PI)/peb_map[i].hei[j];
+//		printf("rho=%e\t%e\t%d\t%d\t",peb_map[i].rho[j],peb_map[i].rad_med,i,j);
 		peb_map[i].mass_in[j]=0.0;
 	}
 	}
+	i=40;
+	fp=fopen("relative_velocity.txt","w");
+	for(j=0;j<peb_size_num;j++){
+	for(jj=0;jj<peb_size_num;jj++){
+		v1=fabs(peb_map[i].vr[j]-peb_map[i].vr[jj]);
+		v2=peb_map[i].vt[j]-peb_map[i].vt[jj];
+		delta_v=sqrt(v1*v1+v2*v2);
+		fprintf(fp,"%e\t",v1);
+	}
+	fprintf(fp,"\n");
+	}
+	fclose(fp);
 }
 void Restart(int rnum){
 	double AREA,dens;
