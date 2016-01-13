@@ -23,7 +23,10 @@ typedef struct PEBBLE_MAP{
 	double mass_in[peb_size_num];
 	double mass_out[peb_size_num];
         double surf_dens[peb_size_num];
+	double rho[peb_size_num];
 	double vr[peb_size_num];
+	double vt[peb_size_num];
+	double hei[peb_size_num];
 } PEBBLE_MAP;
 
 typedef struct DUST_MAP{

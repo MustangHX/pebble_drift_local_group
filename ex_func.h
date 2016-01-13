@@ -17,3 +17,7 @@ double grow_3b();
 double grow_3b2();
 void dust_evolve(double argc);
 double v_r_gas(double argc);
+double height(double argc);
+double coag_kernel(double a_pb1,double a_pb2,double delta_v,double rho1, double rho2, double dt0, double rad);
+void coagulation(double argc);
+double Sigma(double argc);
