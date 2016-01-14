@@ -3,13 +3,6 @@
 #include "ex_func.h"
 #include "math.h"
 #include <stdio.h>
-double Sigma (double r){
-	return 108*pow(r,-0.6);
-}
-
-double height(double r){
-	return 0.033*pow(r,1.05);
-}
 double pp_vr_tau1[2]={0.0};
 
 void Init(){
@@ -133,7 +126,7 @@ void Init2(){// disk with variable resolution
         	peb_map[i].vr[j]=vr_estimate(peb_map[i].rad_med,peb_map[i].size_med[j],pp_vr_tau1);
                 tau=pp_vr_tau1[1];
                 peb_map[i].vt[j]=0.5*tau*peb_map[i].vr[j];
-		peb_map[i].hei[j]=height(peb_map[i].rad_med)*LUNIT/sqrt(1+tau/alpha);
+		peb_map[i].hei[j]=height(peb_map[i].rad_med)/sqrt(1+tau/alpha);
 		if(j==0) printf("hei=%e\t%f\n",peb_map[i].hei[j],peb_map[i].rad_med);
         
 	}

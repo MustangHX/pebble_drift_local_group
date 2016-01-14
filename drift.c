@@ -43,6 +43,9 @@ double v_r_gas(double r){
 }
 
     
+double a_peb(double r){
+	return a_peb0*1.0;//*np.exp((r_out-r)/5);
+}
 
 
 double tau_fric(double r, double a_pb){
