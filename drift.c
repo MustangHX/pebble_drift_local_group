@@ -25,18 +25,7 @@
 #define r_out 100.0
 #define r_in 0.1
 #define step0 0.001
-#define AU_km 1.49597871e8
-#define AU_cm 1.49597871e13
-#define yr_sec 3.15569e7
-#define k_B 1.38e8
-#define acc_rate 1.0 //1.0e-9 M_sun/yr
-#define opa 1.0 //10cm^2g^-1
-#define gamma 1.0 //1.4 for rotatation excited H2
-#define gamma0 1.4
-#define m_star 1.0//in solar mass
-//if (m_star>1.0){ kk=0.57;}
-//else{kk=0.8;r_star=0.005*pow(m_star,kk )}//AU
-
+#define acc_rate 1.0
 #define int_m_star 1
 
 #if int_m_star > 1
@@ -45,14 +34,6 @@
 #define kk 0.8
 #endif
 
-#define r_star 0.0 //0.005 * pow(m_star,kk )
-
-#define alpha 0.1 //in 0.001
-#define rho_peb 1.0 // in 3g*cm^-3
-#define rho_peb0 3.0
-
-#define visco_air 0.146 //in cm^2/s
-#define k_P 2.55
 
 double vr_tau[2]={0.0};
 double tau_temp;
@@ -61,61 +42,16 @@ double v_r_gas(double r){
 	return 6.34*pow(r,-0.4);
 }
 
-double v_K(double r){
-    return 29.8*100000.0*sqrt(m_star)/sqrt(r);
-}
-
-double w_K(double r){
-    return v_K(r)/(r*AU_cm);
-}
-
-double sound_sp(double r){
-    return 100000.0*1.12*pow(opa,0.1)*pow(gamma,0.4)*pow(alpha,-0.1)*pow(m_star,0.15)\
-    *(pow((1-sqrt(r_star/r))*acc_rate,0.2))*pow(r,(-0.45));
-}
-double temperature(double r){
-    return 254.0*pow(opa,0.2)*pow(gamma,-0.2)*pow(alpha,-0.2)*pow(m_star,0.3)\
-    *(pow((1-sqrt(r_star/r))*acc_rate,0.4))*pow(r,(-0.9));
     
-}
-double yeta(double r){
-    return k_P*(sound_sp(r)/v_K(r))*(sound_sp(r)/v_K(r));
-}
 
-double pressure(double r){
-    return k_B*1.22e16*pow(gamma,-1.2)*pow(opa,-0.1)*pow(alpha,-0.9)\
-    *pow(m_star,0.85)*pow((1-sqrt(r_star/r))*acc_rate,0.8)*pow(r,-2.55);
-}
-
-double density( double r){
-    return 1.87e-10*pow(gamma,(-1.2))*pow(opa,(-0.3))*pow(alpha,(-0.7))\
-    *pow(m_star,0.55)*(pow((1-sqrt(r_star/r))*acc_rate,0.4))*pow(r,(-1.65));
-}
-
-
-double a_peb(double r){
-    return a_peb0*1.0;//*np.exp((r_out-r)/5);
-}
-
-
-double mean_path( double r){
-    return 12.5*pow(gamma,-1.2)*pow(opa,0.3)*pow(alpha,0.7)*pow(m_star,-0.55)\
-    *(pow((1-sqrt(r_star/r))*acc_rate,-0.4))*pow(r,1.65);
-    //return 1.0;
-}
-
-double viscosity( double r){//http://www.ifu.ethz.ch/IE/education/AQAM/GasKinetics
-    //return 0.4991*sqrt(8.0/gamma0/M_PI)*sound_sp(r)*mean_path(r)*100000.0;
-    return 0.5*sqrt(8.0/gamma/M_PI)*sound_sp(r)*mean_path(r);
-}
 
 double tau_fric(double r, double a_pb){
     double t_eps;
-    t_eps=0.0178*a_pb*rho_peb*pow(gamma,0.8)*pow(opa,0.2)*pow(alpha,0.8)*\
+    t_eps=0.0178*a_pb*rho_peb*pow(gamma0,0.8)*pow(opa,0.2)*pow(alpha,0.8)*\
     pow(m_star,-0.2)*pow((1-sqrt(r_star/r))*acc_rate,-0.6)*pow(r,0.6);
     
     // if (a_pb < 2.25*mean_path(r)) {
-    return  0.0178*a_pb*rho_peb*pow(gamma,0.8)*pow(opa,0.2)*pow(alpha,0.8)*pow(m_star,-0.2)*pow((1-sqrt(r_star/r))*acc_rate,(-0.6))*pow(r,0.6);
+    return  0.0178*a_pb*rho_peb*pow(gamma0,0.8)*pow(opa,0.2)*pow(alpha,0.8)*pow(m_star,-0.2)*pow((1-sqrt(r_star/r))*acc_rate,(-0.6))*pow(r,0.6);
     //}
     //else{
     //  return  (0.2222*a_pb*sound_sp(r)*100000.0/viscosity(r))*t_eps;
@@ -123,41 +59,41 @@ double tau_fric(double r, double a_pb){
 }
 
 double tau_test(double r, double a_pb){
-    //return   w_K(r)*rho_peb0*a_pb/(density(r)*sqrt(8.0/gamma/M_PI)*sound_sp(r)*100000.0);
-    return     w_K(r)*2.0*rho_peb0*a_pb*a_pb/(9.0*viscosity(r)*density(r));
+    //return   w_K(r)*rho_peb*a_pb/(density(r)*sqrt(8.0/gamma0/M_PI)*sound_sp(r)*100000.0);
+    return     w_K(r)*2.0*rho_peb*a_pb*a_pb/(9.0*viscosity(r)*density(r));
     
     
 }
 
 double tau_fric0(double r, double a_pb){
     double t_eps;
-    t_eps=0.0178*a_pb*rho_peb*pow(gamma,0.8)*pow(opa,0.2)*pow(alpha,0.8)*\
+    t_eps=0.0178*a_pb*rho_peb*pow(gamma0,0.8)*pow(opa,0.2)*pow(alpha,0.8)*\
     pow(m_star,-0.2)*pow((1-sqrt(r_star/r))*acc_rate,-0.6)*pow(r,0.6);
     
     if ( a_pb < 2.25*mean_path(r)) {
-        //return  0.0178*a_pb*rho_peb*pow(gamma,0.8)*pow(opa,0.2)*pow(alpha,0.8)*pow(m_star,-0.2)*pow((1-sqrt(r_star/r))*acc_rate,(-0.6))*pow(r,0.6);
-        return w_K(r)*rho_peb0*a_pb/(density(r)*sqrt(8.0/gamma/M_PI)*sound_sp(r));
+        //return  0.0178*a_pb*rho_peb*pow(gamma0,0.8)*pow(opa,0.2)*pow(alpha,0.8)*pow(m_star,-0.2)*pow((1-sqrt(r_star/r))*acc_rate,(-0.6))*pow(r,0.6);
+        return w_K(r)*rho_peb*a_pb/(density(r)*sqrt(8.0/gamma0/M_PI)*sound_sp(r));
         
     }
     else{
-        //return  (0.2222*a_pb*sqrt(8.0/gamma/M_PI)*sound_sp(r)/viscosity(r))*t_eps*100000.0;
-        return 2.0*w_K(r)*rho_peb0*a_pb*a_pb/(9.0*viscosity(r)*density(r));
+        //return  (0.2222*a_pb*sqrt(8.0/gamma0/M_PI)*sound_sp(r)/viscosity(r))*t_eps*100000.0;
+        return 2.0*w_K(r)*rho_peb*a_pb*a_pb/(9.0*viscosity(r)*density(r));
     }
 }
 
 double v_r00(double r,double a_pb){
     //printf("tau=%f\n",tau_fric(r));
-    return 100000.0*0.108*(1.0/(tau_fric0(r,a_pb)+1.0/tau_fric0(r,a_pb)))*pow(gamma,0.8)*pow(opa,0.2)*pow(alpha,-0.2)*pow(m_star,-0.2)*pow((1-sqrt(r_star/r))*acc_rate,0.4)*pow(r,-0.4);
+    return 100000.0*0.108*(1.0/(tau_fric0(r,a_pb)+1.0/tau_fric0(r,a_pb)))*pow(gamma0,0.8)*pow(opa,0.2)*pow(alpha,-0.2)*pow(m_star,-0.2)*pow((1-sqrt(r_star/r))*acc_rate,0.4)*pow(r,-0.4);
     
     
 }
 
 double v_r0(double r, double a_pb){
     // printf("tau=%f\n",tau_fric(r));
-    //return 0.108*(1.0/(tau_fric(r)+1.0/tau_fric(r)))*pow(gamma,0.8)*pow(opa,0.2)*pow(alpha,-0.2)*pow(m_star,-0.2)*pow((1-sqrt(r_star/r))*acc_rate,0.4)*pow(r,-0.4);
+    //return 0.108*(1.0/(tau_fric(r)+1.0/tau_fric(r)))*pow(gamma0,0.8)*pow(opa,0.2)*pow(alpha,-0.2)*pow(m_star,-0.2)*pow((1-sqrt(r_star/r))*acc_rate,0.4)*pow(r,-0.4);
     double tau;
-    tau=w_K(r)*rho_peb0*a_pb/(density(r)*sqrt(8.0/gamma/M_PI)*sound_sp(r));
-    //return 0.108*(1.0/(tau+1.0/tau))*pow(gamma,0.8)*pow(opa,0.2)*pow(alpha,-0.2)*pow(m_star,-0.2)*pow((1-sqrt(r_star/r))*acc_rate,0.4)*pow(r,-0.4);
+    tau=w_K(r)*rho_peb*a_pb/(density(r)*sqrt(8.0/gamma0/M_PI)*sound_sp(r));
+    //return 0.108*(1.0/(tau+1.0/tau))*pow(gamma0,0.8)*pow(opa,0.2)*pow(alpha,-0.2)*pow(m_star,-0.2)*pow((1-sqrt(r_star/r))*acc_rate,0.4)*pow(r,-0.4);
     return yeta(r)/(tau+1.0/tau)*v_K(r);
     
     
@@ -168,11 +104,11 @@ double v_r0(double r, double a_pb){
 double v_r1(double r, double a_pb){
     double tau;
     //tau=(0.2222*a_pb*sqrt(8.0/gamma0/M_PI)*sound_sp(r)/viscosity(r))*tau_fric(r)*100000.0;
-    tau=w_K(r)*2.0*rho_peb0*a_pb*a_pb/(9.0*viscosity(r)*density(r));
+    tau=w_K(r)*2.0*rho_peb*a_pb*a_pb/(9.0*viscosity(r)*density(r));
     //tau=tau_fric0(r);
     //printf("tau=%f\n",tau);
     //printf("tau=%1.20f\n",tau);
-    // return 0.108*(1.0/(tau+1.0/tau))*pow(gamma,0.8)*pow(opa,0.2)*pow(alpha,-0.2)*pow(m_star,-0.2)*pow((1-sqrt(r_star/r))*acc_rate,0.4)*pow(r,-0.4);
+    // return 0.108*(1.0/(tau+1.0/tau))*pow(gamma0,0.8)*pow(opa,0.2)*pow(alpha,-0.2)*pow(m_star,-0.2)*pow((1-sqrt(r_star/r))*acc_rate,0.4)*pow(r,-0.4);
     return yeta(r)/(tau+1.0/tau)*v_K(r);
     
 }
@@ -212,8 +148,8 @@ double *v_r2(double r, double a_pb){
             // t1=0;
             re0=2.0*a_pb*sqrt(1.0+0.25*t1*t1)*v1/viscosity(r);
             //printf("re0=%f\n",re0);
-            tau0=w_K(r)*rho_peb0*pow(a_pb,1.6)/(9.0*density(r)*pow(viscosity(r),0.6))*pow(sqrt(1.0+0.25*t1*t1),-0.4)*pow(2.0,0.6);
-            //tau0=w_K(r)*rho_peb0*pow(a_pb,1.6)/(72.0*density(r))*pow(sqrt(1.0+0.0*t1*t1)/viscosity(r),0.6)*1.51571656651;
+            tau0=w_K(r)*rho_peb*pow(a_pb,1.6)/(9.0*density(r)*pow(viscosity(r),0.6))*pow(sqrt(1.0+0.25*t1*t1),-0.4)*pow(2.0,0.6);
+            //tau0=w_K(r)*rho_peb*pow(a_pb,1.6)/(72.0*density(r))*pow(sqrt(1.0+0.0*t1*t1)/viscosity(r),0.6)*1.51571656651;
             tau=tau0*pow(v1,-0.4);
             tau1=-0.4*tau0*pow(v1,-1.4);
             f0=yeta(r)/(tau+1.0/tau)-v1/v_K(r);
@@ -242,7 +178,7 @@ double *v_r2(double r, double a_pb){
 
 double *v_r3(double r, double a_pb){
     double coeff;
-    //coeff=w_K(r)*rho_peb0*a_pb/(0.44*density(r));
+    //coeff=w_K(r)*rho_peb*a_pb/(0.44*density(r));
     // printf("%f\n",(coeff*(1.0*yeta(r)*v_K(r)+coeff)));
     //printf("tau_temp=%f\n",tau_temp);
     //  printf("gua3");
@@ -268,7 +204,7 @@ double *v_r3(double r, double a_pb){
         // t1=0;
         //t1=247;
         // printf("t1=%f\n",t1);
-        ft=w_K(r)*4.0/3.0*rho_peb0*a_pb/(0.5*24*pow(800.0,-0.6)*density(r)*sqrt(1.0+0.25*t1*t1));
+        ft=w_K(r)*4.0/3.0*rho_peb*a_pb/(0.5*24*pow(800.0,-0.6)*density(r)*sqrt(1.0+0.25*t1*t1));
         ft1=-0.25*t1*ft/(1+0.25*t1*t1);
         B=yeta(r)*v_K(r);
         fx=ft/sqrt(fabs(-1.0*ft*ft+ft*B))-t1;
@@ -278,8 +214,8 @@ double *v_r3(double r, double a_pb){
         else fx1=-0.5*pow((-1.0*B*ft+ft*ft),-1.5)*(2.0*ft*ft1-B*ft1)*ft+ft1/sqrt(-1.0*B*ft+ft*ft)-1.0;
         t2=t1-fx/fx1;
         tau0=ft;
-        //tau0=w_K(r)*4.0/3.0*rho_peb0*a_pb/(0.5*24*pow(800.0,-0.6)*density(r)*sqrt(1.0+0.25*t1*t1));
-        //tau0=w_K(r)*rho_peb0*pow(a_pb,1.6)/(72.0*density(r))*pow(sqrt(1.0+0.0*t1*t1)/viscosity(r),0.6)*1.51571656651;
+        //tau0=w_K(r)*4.0/3.0*rho_peb*a_pb/(0.5*24*pow(800.0,-0.6)*density(r)*sqrt(1.0+0.25*t1*t1));
+        //tau0=w_K(r)*rho_peb*pow(a_pb,1.6)/(72.0*density(r))*pow(sqrt(1.0+0.0*t1*t1)/viscosity(r),0.6)*1.51571656651;
         
         //tau=tau0/v1;
         //tau1=-1.0*tau0/v1/v1;
@@ -310,7 +246,7 @@ double *v_r3(double r, double a_pb){
         while (fabs(fx)>1.0 && i<10000){
             t_temp=tau_temp*(1.0+0.4*(i-5000)/10000);
             t1=t_temp;
-            ft=w_K(r)*4.0/3.0*rho_peb0*a_pb/(0.5*24*pow(800.0,-0.6)*density(r)*sqrt(1.0+0.25*t1*t1));
+            ft=w_K(r)*4.0/3.0*rho_peb*a_pb/(0.5*24*pow(800.0,-0.6)*density(r)*sqrt(1.0+0.25*t1*t1));
             ft1=-0.25*t1*ft/(1+0.25*t1*t1);
             B=yeta(r)*v_K(r);
             fx=ft/sqrt(fabs(-1.0*ft*ft+ft*B))-t1;
@@ -322,7 +258,7 @@ double *v_r3(double r, double a_pb){
     v2=yeta(r)*v_K(r)/(t1+1.0/t1);
     //printf("r=%f\t tau0=%f\t tau=%f\t fx=%f\n",r,tau0,t2,fx);
     vr_tau[0]=v2;//sqrt(coeff*(yeta(r)*v_K(r)+coeff));
-    vr_tau[1]=t2;//w_K(r)*rho_peb0*a_pb/1.32/density(r)/vr_tau[0];
+    vr_tau[1]=t2;//w_K(r)*rho_peb*a_pb/1.32/density(r)/vr_tau[0];
     // printf("vr3bbb \n");
     return vr_tau;
     
@@ -334,10 +270,10 @@ double *v_r3(double r, double a_pb){
  //printf("%f\n",mean_path(r));
  v1=200;
  v2=100;
- tau0=w_K(r)*rho_peb0*3.0*pow(a_pb,1.6)/(72.0*density(r))*pow(viscosity(r),-0.6)*1.51571656651;
+ tau0=w_K(r)*rho_peb*3.0*pow(a_pb,1.6)/(72.0*density(r))*pow(viscosity(r),-0.6)*1.51571656651;
  if (a_pb < 2.25*mean_path(r)|| Reynolds(r)<=1.0 ) {
  //printf("gua1");
- return 0.108*(1.0/(tau_fric(r)+1.0/tau_fric(r)))*pow(gamma,0.8)*pow(opa,0.2)*pow(alpha,-0.2)*pow(m_star,-0.2)*pow((1-sqrt(r_star/r))*acc_rate,0.4)*pow(r,-0.4);
+ return 0.108*(1.0/(tau_fric(r)+1.0/tau_fric(r)))*pow(gamma0,0.8)*pow(opa,0.2)*pow(alpha,-0.2)*pow(m_star,-0.2)*pow((1-sqrt(r_star/r))*acc_rate,0.4)*pow(r,-0.4);
  
  }
  
@@ -358,7 +294,7 @@ double *v_r3(double r, double a_pb){
  return v2;
  }
  else{
- coeff=w_K(r)*rho_peb0*a_pb/(0.44*density(r));
+ coeff=w_K(r)*rho_peb*a_pb/(0.44*density(r));
  printf("%f\n",(coeff*(1.0*yeta(r)*v_K(r)+coeff)));
  printf("%f\n",yeta(r));
  printf("gua3");
@@ -368,16 +304,13 @@ double *v_r3(double r, double a_pb){
  
  }*/
 //    return r**-2
-double vt_gas(double r){
-	return v_K(r)*sqrt(1-yeta(r));
-}
 
 double vr_estimate( double r, double a_peb, double *p_vr_tau)
 {
 	double drag_coeff,drag_force,Re,tau_fric;
 	Re=2.0*a_peb*(v_K(r)-vt_gas(r))/viscosity(r);
 	if(a_peb<2.25*mean_path(r)){
-		drag_coeff=8.0/3.0*sqrt(8.0/gamma/M_PI)*sound_sp(r)/(v_K(r)-vt_gas(r));
+		drag_coeff=8.0/3.0*sqrt(8.0/gamma0/M_PI)*sound_sp(r)/(v_K(r)-vt_gas(r));
 	}
 	else if(Re<=1.0){
 		drag_coeff=24.0/Re;
@@ -389,8 +322,8 @@ double vr_estimate( double r, double a_peb, double *p_vr_tau)
 		drag_coeff=0.44;
 	}
 	drag_force=0.5*drag_coeff*M_PI*a_peb*a_peb*density(r)*(v_K(r)-vt_gas(r))*(v_K(r)-vt_gas(r));
-//	return drag_force*r*AU_cm/(rho_peb0*4.0/3.0*M_PI*pow(a_peb,3)*v_K(r));
-	tau_fric=rho_peb0*4.0/3.0*M_PI*pow(a_peb,3)*(v_K(r)-vt_gas(r))/drag_force*w_K(r);
+//	return drag_force*r*LUNIT/(rho_peb*4.0/3.0*M_PI*pow(a_peb,3)*v_K(r));
+	tau_fric=rho_peb*4.0/3.0*M_PI*pow(a_peb,3)*(v_K(r)-vt_gas(r))/drag_force*w_K(r);
 	p_vr_tau[0]=yeta(r)*v_K(r)/(tau_fric+1.0/tau_fric);
 	p_vr_tau[1]=tau_fric;
 	return yeta(r)*v_K(r)/(tau_fric+1.0/tau_fric);
@@ -542,8 +475,8 @@ int drift(double r_start, double a_pebble, double coag_eff)
             k4=1.0/vr2;
             y=y+step*(k1+2*k2+2*k3+k4)/6.0;
             fprintf(fp_vr, "%f\t%f\n",x,vr0);
-            //fprintf(fp_drt, "%f\t%f\t%f\t%f\n",x,-1.0*sum1*AU_km/yr_sec,a_pb1,coag_eff);
-            fprintf(fp_drt, "%f\t%f\n",x,-1.0*sum1*AU_cm/yr_sec);
+            //fprintf(fp_drt, "%f\t%f\t%f\t%f\n",x,-1.0*sum1*AU_km/TUNIT,a_pb1,coag_eff);
+            fprintf(fp_drt, "%f\t%f\n",x,-1.0*sum1*LUNIT/TUNIT);
             fprintf(fp_size,"%f\t%f\n",x,a_pb1);
             if (1) {
                 //printf("r=%0.20f\t tau=%f\t f_tau=%f\t t_drift=%f\t vr=%f\tpeb_size=%f\t Step=%0.20f\n",x,tau,1.0/(tau+1.0/tau),43.9*(tau+1.0/tau)*pow(acc_rate,-0.4)*pow(alpha,0.2)*pow(x,1.4), vr0,0.108/(tau+1.0/tau)*pow(acc_rate,0.4)*pow(alpha,-0.2)*pow(x,-0.4),step);
@@ -557,9 +490,9 @@ int drift(double r_start, double a_pebble, double coag_eff)
                 coag_eff=0.000;
                 
             }
-            vol_plus=-1.0*M_PI*a_pb1*a_pb1*sqrt(vr0*vr0+0.25*tau*vr0*tau*vr0)*step*(k1+2*k2+2*k3+k4)/6.0*AU_cm;
+            vol_plus=-1.0*M_PI*a_pb1*a_pb1*sqrt(vr0*vr0+0.25*tau*vr0*tau*vr0)*step*(k1+2*k2+2*k3+k4)/6.0*LUNIT;
             if (0) vol_plus=0.0;
-            a_pb2=pow(((vol_plus*coag_eff*density(x)/rho_peb0+4.0/3.0*M_PI*a_pb1*a_pb1*a_pb1)*3.0/4.0/M_PI),0.33333333333333333);
+            a_pb2=pow(((vol_plus*coag_eff*density(x)/rho_peb+4.0/3.0*M_PI*a_pb1*a_pb1*a_pb1)*3.0/4.0/M_PI),0.33333333333333333);
             /*if (i%100==0) {
              printf("%0.20f\t peb_size=%f\t Step=%0.20f\n",x,a_pb2,step);
              }*/
@@ -571,8 +504,8 @@ int drift(double r_start, double a_pebble, double coag_eff)
             y=y+step/vr0;
             x+=step;
             fprintf(fp_vr, "%f\t%f\n",x_cut,vr0);
-            //fprintf(fp_drt, "%f\t%f\t%f\t%f\n",x_cut,-1.0*sum1*AU_km/yr_sec,a_pb1,coag_eff);
-            fprintf(fp_drt, "%f\t%f\t%f\t%f\n",x_cut,-1.0*sum1*AU_km/yr_sec,a_pb1,coag_eff);
+            //fprintf(fp_drt, "%f\t%f\t%f\t%f\n",x_cut,-1.0*sum1*AU_km/TUNIT,a_pb1,coag_eff);
+            fprintf(fp_drt, "%f\t%f\t%f\t%f\n",x_cut,-1.0*sum1*AU_km/TUNIT,a_pb1,coag_eff);
             fprintf(fp_size,"%f\t%f\n",x_cut,a_pb1);
             
         }
@@ -584,7 +517,7 @@ int drift(double r_start, double a_pebble, double coag_eff)
     //printf("%transition=%f\n",x_stop);
     
     
-    sum1=sum1*AU_cm/yr_sec;
+    sum1=sum1*LUNIT/TUNIT;
     
     //printf("%0.10f\n",sum1);
     //printf("Hello, World!\n");
@@ -611,7 +544,7 @@ int drift(double r_start, double a_pebble, double coag_eff)
         }
         
     }
-    sum1=sum1*AU_km/yr_sec;
+    sum1=sum1*AU_km/TUNIT;
     printf("%0.10f\n", sum1);
     printf("%0.10f\n", tau_fric0(1.0,a_pb1));
     printf("%0.10f\n", v_K(0.01516));
@@ -735,11 +668,11 @@ int drift(double r_start, double a_pebble, double coag_eff)
 	    pp->mass[ll]=pow(pp->size[ll]/pp->size[0],3)*pp->mass[0];
 	    zone_num1=floor(x/dust_budget[0].dr);
 
-	    x+=-vr0*dt/AU_km*yr_sec;
+	    x+=-vr0*dt/AU_km*TUNIT;
 
 	    zone_num2=floor(x/dust_budget[0].dr);
 	    if(zone_num2==zone_num1) {
-	    	ring_area=(AU_km*100000.0)*(AU_km*100000.0)*M_PI*((x+vr0*dt/AU_km*yr_sec)*(x+vr0*dt/AU_km*yr_sec)-x*x);
+	    	ring_area=(AU_km*100000.0)*(AU_km*100000.0)*M_PI*((x+vr0*dt/AU_km*TUNIT)*(x+vr0*dt/AU_km*TUNIT)-x*x);
 	    	budget=dust_budget[zone_num1].surf_dens*ring_area;
 	    }
 	    else{
@@ -749,7 +682,7 @@ int drift(double r_start, double a_pebble, double coag_eff)
 			    ring_area*(AU_km*100000.0)*(AU_km*100000.0)*M_PI;
 			    budget+=dust_budget[i].surf_dens*ring_area;
 		    }
-		    ring_area=(x+vr0*dt/AU_km*yr_sec)*(x+vr0*dt/AU_km*yr_sec)-(dust_budget[zone_num1].rad-0.125)*(dust_budget[zone_num1].rad-0.125);
+		    ring_area=(x+vr0*dt/AU_km*TUNIT)*(x+vr0*dt/AU_km*TUNIT)-(dust_budget[zone_num1].rad-0.125)*(dust_budget[zone_num1].rad-0.125);
 		    ring_area=ring_area*(AU_km*100000.0)*(AU_km*100000.0)*M_PI;
 		    budget+=dust_budget[zone_num1].surf_dens*ring_area;
 		    ring_area=(dust_budget[zone_num2].rad+0.125)*(dust_budget[zone_num2].rad+0.125)-x*x;
@@ -758,7 +691,7 @@ int drift(double r_start, double a_pebble, double coag_eff)
 	    }
 	    time_tot=time_tot+dt;
             fprintf(fp_vr, "%f\t%f\n",x,vr0);
-            //fprintf(fp_drt, "%f\t%f\n",x,-1.0*sum1*AU_km/yr_sec);
+            //fprintf(fp_drt, "%f\t%f\n",x,-1.0*sum1*AU_km/TUNIT);
             fprintf(fp_size,"%f\t%f\n",x,a_pb1);
             if (a_pb1>9.0/4.0*mean_path(x)) {
               //  l++;
@@ -768,9 +701,9 @@ int drift(double r_start, double a_pebble, double coag_eff)
                 
             }
             //vol_plus=-1.0*M_PI*a_pb1*a_pb1*sqrt(vr0*vr0+0.25*tau*vr0*tau*vr0)*step*(k1+2*k2+2*k3+k4)/6.0*AU_km*100000.0;
-            vol_plus=1.0*M_PI*a_pb1*a_pb1*sqrt(vr0*vr0+0.25*tau*vr0*tau*vr0)*dt*yr_sec*AU_km;
+            vol_plus=1.0*M_PI*a_pb1*a_pb1*sqrt(vr0*vr0+0.25*tau*vr0*tau*vr0)*dt*TUNIT*AU_km;
 	   // if (0) vol_plus=0.0;
-            a_pb2=pow(((vol_plus*coag_eff*density(x)/rho_peb0+4.0/3.0*M_PI*a_pb1*a_pb1*a_pb1)*3.0/4.0/M_PI),0.33333333333333333);
+            a_pb2=pow(((vol_plus*coag_eff*density(x)/rho_peb+4.0/3.0*M_PI*a_pb1*a_pb1*a_pb1)*3.0/4.0/M_PI),0.33333333333333333);
 	    massplus=(pow(a_pb2/pp->size[0],3)-pow(a_pb1/pp->size[0],3))*pp->mass[0];
 	    
 	if(zone_num1==zone_num2){
@@ -788,7 +721,7 @@ int drift(double r_start, double a_pebble, double coag_eff)
 		}
 	}
 	else{
-		ring_area_all=(x+vr0*dt/AU_km*yr_sec)*(x+vr0*dt/AU_km*yr_sec)-x*x;
+		ring_area_all=(x+vr0*dt/AU_km*TUNIT)*(x+vr0*dt/AU_km*TUNIT)-x*x;
 		ring_area_all=ring_area_all*(AU_km*100000.0)*(AU_km*100000.0)*M_PI;
 		for(i=zone_num1-1;i>zone_num2;i--){
 			ring_area=(dust_budget[i].rad+0.125)*(dust_budget[i].rad+0.125)-(dust_budget[i].rad-0.125)*(dust_budget[i].rad-0.125);
@@ -801,7 +734,7 @@ int drift(double r_start, double a_pebble, double coag_eff)
 			else ring_mass=0.0;
 			dust_budget[i].surf_dens=ring_mass/ring_area;
 		}
-		ring_area=(x+vr0*dt/AU_km*yr_sec)*(x+vr0*dt/AU_km*yr_sec)-(dust_budget[zone_num1].rad-0.125)*(dust_budget[zone_num1].rad-0.125);
+		ring_area=(x+vr0*dt/AU_km*TUNIT)*(x+vr0*dt/AU_km*TUNIT)-(dust_budget[zone_num1].rad-0.125)*(dust_budget[zone_num1].rad-0.125);
 		ring_area=ring_area*(AU_km*100000.0)*(AU_km*100000.0)*M_PI;
 		ring_area0=(dust_budget[zone_num1].rad+0.125)*(dust_budget[zone_num1].rad+0.125)-(dust_budget[zone_num1].rad-0.125)*(dust_budget[zone_num1].rad-0.125);
 		ring_area0=ring_area0*(AU_km*100000.0)*(AU_km*100000.0)*M_PI;
@@ -858,7 +791,7 @@ int drift(double r_start, double a_pebble, double coag_eff)
     fclose(fp_size);
     
     
-    sum1=sum1*AU_km/yr_sec;
+    sum1=sum1*AU_km/TUNIT;
 
 return 0;
 }*/

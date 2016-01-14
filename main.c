@@ -75,7 +75,7 @@ int main(argc, argv)
 	vol_plus=1.0*M_PI*a_p*a_p*sqrt(vr0*vr0+0.25*tau*vr0*tau*vr0)*dt*TUNIT;
 	if(a_p > a_max) {check=1; vol_plus=0.0;}
 	else check=0;
-	a_p=pow(((vol_plus*coag_eff*0.1*density(r0)/rho_peb0+4.0/3.0*M_PI*a_p*a_p*a_p)*3.0/4.0/M_PI),0.33333333333333333);
+	a_p=pow(((vol_plus*coag_eff*0.1*density(r0)/rho_peb+4.0/3.0*M_PI*a_p*a_p*a_p)*3.0/4.0/M_PI),0.33333333333333333);
 	if(check==0 && a_p>=a_max)       a_p=a_max;
 	fprintf(fp,"%e\t%e\n",r0,a_p);
 	}

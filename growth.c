@@ -24,23 +24,23 @@ for(i=ring_num-1;i>-1;i--){
         a_max=2.25*mean_path(peb_map[i].rad);
 	vol_plus_arr[j]=1.0*M_PI*a_pb1*a_pb1*sqrt(vr0*vr0+0.25*tau*vr0*tau*vr0)*dt*TUNIT;
 	if(a_pb1>=a_max) vol_plus_arr[j]=0.0;
-	a_pb2[j]=pow(((vol_plus_arr[j]*coag_eff*dust_budget[i].rho[j]/rho_peb0+4.0/3.0*M_PI*a_pb1*a_pb1*a_pb1)*3.0/4.0/M_PI),0.33333333333333333);
+	a_pb2[j]=pow(((vol_plus_arr[j]*coag_eff*dust_budget[i].rho[j]/rho_peb+4.0/3.0*M_PI*a_pb1*a_pb1*a_pb1)*3.0/4.0/M_PI),0.33333333333333333);
 	if(a_pb1<a_max && a_pb2[j]>=a_max){
 	a_pb2[j]=a_max;
-	vol_plus_arr[j]=(pow(a_pb2[j],3.0)-pow(a_pb1,3.0))*4.0*M_PI/3.0*rho_peb0/dust_budget[i].rho[j];
+	vol_plus_arr[j]=(pow(a_pb2[j],3.0)-pow(a_pb1,3.0))*4.0*M_PI/3.0*rho_peb/dust_budget[i].rho[j];
 	}
-	peb_mass[j]=pow(peb_map[i].size[j],3)*M_PI*4.0/3.0*rho_peb0;
+	peb_mass[j]=pow(peb_map[i].size[j],3)*M_PI*4.0/3.0*rho_peb;
 	vol_plus_sum+=vol_plus_arr[j]*peb_map[i].mass_out[j]/peb_mass[j];
 	dust_dens_sum+=dust_budget[i].surf_dens[j];
 	dust_rho_sum+=dust_budget[i].rho[j];
-	a_pb2[j]=pow(((vol_plus_arr[j]*coag_eff*dust_budget[i].rho[j]/rho_peb0+4.0/3.0*M_PI*a_pb1*a_pb1*a_pb1)*3.0/4.0/M_PI),0.33333333333333333);
+	a_pb2[j]=pow(((vol_plus_arr[j]*coag_eff*dust_budget[i].rho[j]/rho_peb+4.0/3.0*M_PI*a_pb1*a_pb1*a_pb1)*3.0/4.0/M_PI),0.33333333333333333);
 	}
 	for(j=0;j<peb_size_num;j++){
         a_pb1=peb_map[i].size[j];
 //	dust_budget[i].surf_dens[j]=vol_plus_arr[j]*peb_map[i].mass_out[j]*dust_dens_sum/vol_plus_sum/peb_mass[j];
 	old_dens=dust_budget[i].surf_dens[j];
 //	dust_budget[i].rho[j]=vol_plus_arr[j]*peb_map[i].mass_out[j]*dust_rho_sum/vol_plus_sum/peb_mass[j];
-	a_pb2[j]=pow(((vol_plus_arr[j]*coag_eff*dust_budget[i].rho[j]/rho_peb0+4.0/3.0*M_PI*a_pb1*a_pb1*a_pb1)*3.0/4.0/M_PI),0.33333333333333333);
+	a_pb2[j]=pow(((vol_plus_arr[j]*coag_eff*dust_budget[i].rho[j]/rho_peb+4.0/3.0*M_PI*a_pb1*a_pb1*a_pb1)*3.0/4.0/M_PI),0.33333333333333333);
 	a_max=2.25*mean_path(peb_map[i].rad);
 	if(a_pb1<a_max && a_pb2[j]>a_max) a_pb2[j]=a_max;
 	delta_mass[j]=(pow(a_pb2[j]/a_pb1,3)-1.0)*peb_map[i].mass_out[j];
@@ -72,7 +72,7 @@ for(i=ring_num-1;i>-1;i--){
 		}
 		else check=0;
 		//delta_mass=vol_plus*coag_eff*density(peb_map[i].rad);
-		a_pb2[j]=pow(((vol_plus_arr[j]*coag_eff*dust_budget[i].rho[j]/rho_peb0+4.0/3.0*M_PI*a_pb1*a_pb1*a_pb1)*3.0/4.0/M_PI),0.33333333333333333);
+		a_pb2[j]=pow(((vol_plus_arr[j]*coag_eff*dust_budget[i].rho[j]/rho_peb+4.0/3.0*M_PI*a_pb1*a_pb1*a_pb1)*3.0/4.0/M_PI),0.33333333333333333);
 		if(a_pb2[j] >a_max && check==0){
 			a_pb2[j]=2.25*mean_path(peb_map[i].rad);
 		}
@@ -170,7 +170,7 @@ for(j=0;j<peb_size_num;j++){
 	else{
 	vol_plus=1.0*M_PI*a_pb1*a_pb1*sqrt(vr0*vr0+0.25*tau*vr0*tau*vr0)*dt*TUNIT;
 	}
-	a_pb11=pow(((vol_plus*coag_eff*dust_budget[i].rho[j]/rho_peb0+4.0/3.0*M_PI*a_pb1*a_pb1*a_pb1)*3.0/4.0/M_PI),1.0/3.0);
+	a_pb11=pow(((vol_plus*coag_eff*dust_budget[i].rho[j]/rho_peb+4.0/3.0*M_PI*a_pb1*a_pb1*a_pb1)*3.0/4.0/M_PI),1.0/3.0);
 	if(a_pb1<a_max && a_pb11>a_max) a_pb11=a_max;
 	a_pb2=peb_map[i].size[j+1];
         vr0=vr_estimate(peb_map[i].rad+dr/2.0,a_pb2,pp_vr_tau);
@@ -179,7 +179,7 @@ for(j=0;j<peb_size_num;j++){
 	else{
 		vol_plus=1.0*M_PI*a_pb2*a_pb2*sqrt(vr0*vr0+0.25*tau*vr0*tau*vr0)*dt*TUNIT;
 	}
-	a_pb22=pow(((vol_plus*coag_eff*dust_budget[i].rho[j]/rho_peb0+4.0/3.0*M_PI*a_pb2*a_pb2*a_pb2)*3.0/4.0/M_PI),1.0/3.0);
+	a_pb22=pow(((vol_plus*coag_eff*dust_budget[i].rho[j]/rho_peb+4.0/3.0*M_PI*a_pb2*a_pb2*a_pb2)*3.0/4.0/M_PI),1.0/3.0);
 	if(a_pb2<a_max && a_pb22>a_max) a_pb22=a_max;
 
 	a_pb3=(a_pb2-a_pb1)/(a_pb22-a_pb11)*(a_pb2-a_pb11)+a_pb1;
@@ -257,7 +257,7 @@ for(j=0;j<peb_size_num;j++){
 	else{
 	vol_plus=1.0*M_PI*a_pb1*a_pb1*sqrt(vr0*vr0+0.25*tau*vr0*tau*vr0)*dt0*TUNIT;
 	}
-	a_pb11=pow(((vol_plus*coag_eff*dust_budget[i].rho[0]/rho_peb0+4.0/3.0*M_PI*a_pb1*a_pb1*a_pb1)*3.0/4.0/M_PI),1.0/3.0);
+	a_pb11=pow(((vol_plus*coag_eff*dust_budget[i].rho[0]/rho_peb+4.0/3.0*M_PI*a_pb1*a_pb1*a_pb1)*3.0/4.0/M_PI),1.0/3.0);
 	if(a_pb1<a_max && a_pb11>a_max) a_pb11=a_max;
 	a_pb2=peb_map[i].size[j+1];
         vr0=vr_estimate(peb_map[i].rad+dr/2.0,a_pb2,pp_vr_tau);
@@ -266,7 +266,7 @@ for(j=0;j<peb_size_num;j++){
 	else{
 		vol_plus=1.0*M_PI*a_pb2*a_pb2*sqrt(vr0*vr0+0.25*tau*vr0*tau*vr0)*dt0*TUNIT;
 	}
-	a_pb22=pow(((vol_plus*coag_eff*dust_budget[i].rho[0]/rho_peb0+4.0/3.0*M_PI*a_pb2*a_pb2*a_pb2)*3.0/4.0/M_PI),1.0/3.0);
+	a_pb22=pow(((vol_plus*coag_eff*dust_budget[i].rho[0]/rho_peb+4.0/3.0*M_PI*a_pb2*a_pb2*a_pb2)*3.0/4.0/M_PI),1.0/3.0);
 	if(a_pb2<a_max && a_pb22>a_max) a_pb22=a_max;
 
 	a_pb3=(a_pb2-a_pb1)/(a_pb22-a_pb11)*(a_pb2-a_pb11)+a_pb1;
@@ -374,7 +374,7 @@ for(j=0;j<peb_size_num;j++){
 	vol_plus=1.0*M_PI*a_pb1*a_pb1*sqrt(vr0*vr0+0.25*tau*vr0*tau*vr0)*dt0*TUNIT;
 	//vol_plus=1.0*M_PI*a_pb1*a_pb1*sqrt(vr0*vr0+vt0*vt0)*dt0*TUNIT;
 	}
-	a_pb11=pow(((vol_plus*coag_eff*dust_budget[i].rho[0]/rho_peb0+4.0/3.0*M_PI*a_pb1*a_pb1*a_pb1)*3.0/4.0/M_PI),1.0/3.0);
+	a_pb11=pow(((vol_plus*coag_eff*dust_budget[i].rho[0]/rho_peb+4.0/3.0*M_PI*a_pb1*a_pb1*a_pb1)*3.0/4.0/M_PI),1.0/3.0);
 	if(a_pb1<a_max && a_pb11>a_max) a_pb11=a_max;
 	a_pb2=peb_map[i].size[j+1];
         vr0=vr_estimate(peb_map[i].rad+dr/2.0,a_pb2,pp_vr_tau);
@@ -383,7 +383,7 @@ for(j=0;j<peb_size_num;j++){
 	else{
 		vol_plus=1.0*M_PI*a_pb2*a_pb2*sqrt(vr0*vr0+0.25*tau*vr0*tau*vr0)*dt0*TUNIT;
 	}
-	a_pb22=pow(((vol_plus*coag_eff*dust_budget[i].rho[0]/rho_peb0+4.0/3.0*M_PI*a_pb2*a_pb2*a_pb2)*3.0/4.0/M_PI),1.0/3.0);
+	a_pb22=pow(((vol_plus*coag_eff*dust_budget[i].rho[0]/rho_peb+4.0/3.0*M_PI*a_pb2*a_pb2*a_pb2)*3.0/4.0/M_PI),1.0/3.0);
 	if(a_pb2<a_max && a_pb22>a_max) a_pb22=a_max;
 
 	a_pb3=(a_pb2-a_pb1)/(a_pb22-a_pb11)*(a_pb2-a_pb11)+a_pb1;
@@ -470,7 +470,7 @@ for(j=0;j<peb_size_num;j++){
 	else{
 	vol_plus=1.0*M_PI*a_pb1*a_pb1*sqrt(vr0*vr0+0.25*tau*vr0*tau*vr0)*dt1*TUNIT;
 	}
-	a_pb11=pow(((vol_plus*coag_eff*dust_budget[i].rho[0]/rho_peb0+4.0/3.0*M_PI*a_pb1*a_pb1*a_pb1)*3.0/4.0/M_PI),1.0/3.0);
+	a_pb11=pow(((vol_plus*coag_eff*dust_budget[i].rho[0]/rho_peb+4.0/3.0*M_PI*a_pb1*a_pb1*a_pb1)*3.0/4.0/M_PI),1.0/3.0);
 	if(a_pb1<a_max && a_pb11>a_max) a_pb11=a_max;
 	a_pb2=peb_map[i].size[j+1];
         vr0=vr_estimate(peb_map[i].rad+dr/2.0,a_pb2,pp_vr_tau);
@@ -479,7 +479,7 @@ for(j=0;j<peb_size_num;j++){
 	else{
 		vol_plus=1.0*M_PI*a_pb2*a_pb2*sqrt(vr0*vr0+0.25*tau*vr0*tau*vr0)*dt1*TUNIT;
 	}
-	a_pb22=pow(((vol_plus*coag_eff*dust_budget[i].rho[0]/rho_peb0+4.0/3.0*M_PI*a_pb2*a_pb2*a_pb2)*3.0/4.0/M_PI),1.0/3.0);
+	a_pb22=pow(((vol_plus*coag_eff*dust_budget[i].rho[0]/rho_peb+4.0/3.0*M_PI*a_pb2*a_pb2*a_pb2)*3.0/4.0/M_PI),1.0/3.0);
 	if(a_pb2<a_max && a_pb22>a_max) a_pb22=a_max;
 
 	a_pb3=(a_pb2-a_pb1)/(a_pb22-a_pb11)*(a_pb2-a_pb11)+a_pb1;

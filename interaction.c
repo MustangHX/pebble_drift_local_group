@@ -36,8 +36,8 @@ for(i=0;i<ring_num;i++){
 
 double coag_kernel(double a_pb1,double a_pb2,double delta_v,double rho1, double rho2, double dt0, double rad){
 	double cross_section, path,n_density;
-	if(a_pb1 >=a_pb2) n_density=rho2/(rho_peb0*4.0*M_PI*a_pb1*a_pb1*a_pb1/3.0);
-	else n_density=rho1/(rho_peb0*4.0*M_PI*a_pb2*a_pb2*a_pb2/3.0)*0.85;//disk within -h to h
+	if(a_pb1 >=a_pb2) n_density=rho2/(rho_peb*4.0*M_PI*a_pb1*a_pb1*a_pb1/3.0);
+	else n_density=rho1/(rho_peb*4.0*M_PI*a_pb2*a_pb2*a_pb2/3.0)*0.85;//disk within -h to h
 	cross_section=M_PI*(a_pb1*a_pb1+a_pb2*a_pb2);
 	cross_section=M_PI*(a_pb1+a_pb2)*(a_pb1+a_pb2);
 	//delta_v=fabs(v1-v2);
