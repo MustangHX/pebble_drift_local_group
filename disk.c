@@ -5,7 +5,7 @@
 #include "global_ex.h"
 
 double v_K(double r){
-    return 29.8*100000.0*sqrt(m_star*MUNIT)/sqrt(r);
+    return 29.8*100000.0*sqrt(m_star)/sqrt(r);
 }
 
 double w_K(double r){

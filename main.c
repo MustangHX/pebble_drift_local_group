@@ -37,12 +37,13 @@ int main(argc, argv)
 	n=0;
    // group();
 	printf("PPPPeEEEBBBB%.16f\n",density(1.0));
-	drift(1.0,drag_group(1.0,0.01));
+	//drift(1.0,drag_group(1.0,0.01));
         printf("PPPPeEEEBBBB%.12f\n",drag_group(1.0,0.01));
 	Init2();
 	check_disk(1.0);
 	if(Restarting == 1){
 		Restart(NbRestart);
+		time_sum+=NbRestart;
 	}
         fp=fopen("size_chart.txt","w");
         for(i=0;i<peb_size_num;i++){

@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "global_var.h"
+#include "ex_func.h"
 #define output_size "peb_size.txt"
 //#define output_time "001alpha1cm100AU001AU1sun01acc.txt"
 #define output_time "drift_test0.txt"
@@ -327,8 +328,10 @@ double vr_estimate( double r, double a_peb, double *p_vr_tau)
 	drag_force=0.5*drag_coeff*M_PI*a_peb*a_peb*density(r)*(v_K(r)-vt_gas(r))*(v_K(r)-vt_gas(r));
 //	return drag_force*r*LUNIT/(rho_peb*4.0/3.0*M_PI*pow(a_peb,3)*v_K(r));
 	tau_fric=rho_peb*4.0/3.0*M_PI*pow(a_peb,3)*(v_K(r)-vt_gas(r))/drag_force*w_K(r);
+
 	p_vr_tau[0]=yeta(r)*v_K(r)/(tau_fric+1.0/tau_fric);
 	p_vr_tau[1]=tau_fric;
+//	printf("r=%g\t tau_fric=%g\t Omega_K=%g\t v_K=%g\n",r,tau_fric,v_K(r)/r/LUNIT,v_K(1.0));
 	return yeta(r)*v_K(r)/(tau_fric+1.0/tau_fric);
 
 }

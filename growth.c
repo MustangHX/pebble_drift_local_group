@@ -379,7 +379,7 @@ for(j=0;j<peb_size_num;j++){
 	a_pb2=peb_map[i].size[j+1];
         vr0=vr_estimate(peb_map[i].rad+dr/2.0,a_pb2,pp_vr_tau);
 	tau=pp_vr_tau[1];
-	if(a_pb2>a_max || dust_budget[i].surf_dens[0]< 1e-10) vol_plus=0.0;
+	if(a_pb2>a_max || dust_budget[i].surf_dens[0]< 1e-8) vol_plus=0.0;
 	else{
 		vol_plus=1.0*M_PI*a_pb2*a_pb2*sqrt(vr0*vr0+0.25*tau*vr0*tau*vr0)*dt0*TUNIT;
 	}

@@ -105,8 +105,8 @@ void Init2(){// disk with variable resolution
 	dust_budget[i].rad_med=0.5*(rad1+rad2);
 	dust_budget[i].mass_in=0.0;
 	for(j=0;j<peb_size_num;j++){
-	dust_budget[i].surf_dens[j]=Sigma(dust_budget[i].rad)*dust_gas;
-	dust_budget[i].rho[j]=density(dust_budget[i].rad)*dust_gas;
+	dust_budget[i].surf_dens[j]=Sigma(dust_budget[i].rad_med)*dust_gas;
+	dust_budget[i].rho[j]=density(dust_budget[i].rad_med)*dust_gas;
 	}
 	dust_budget[i].mass_out=dust_budget[i].surf_dens[0]*dust_budget[i].AREA;
 	printf("%d\t%g\n",i,dust_budget[i].surf_dens[0]);
@@ -160,17 +160,24 @@ void Init2(){// disk with variable resolution
 	fclose(fp);
 }
 void Restart(int rnum){
-	double AREA,dens;
+	double AREA,dens,dust;
 	int i,j,k;
-	FILE *fp;
-	char name[256];
+	FILE *fp,*fp_dust;
+	char name[256],name1[256];
 	printf("RESTART=%d\n",rnum);
         sprintf(name,"out_sigma%d.txt",rnum);
-	printf("%s\n",name);
+	sprintf(name1,"dust_sigma%d.txt",rnum);
+	printf("%s\n%s\n",name,name1);
 	fp=fopen(name,"r");
+	fp_dust=fopen(name1,"r");
         for(i=0;i<ring_num;i++){
-	AREA=M_PI*((peb_map[i].rad+size_ring/2.0)*(peb_map[i].rad+size_ring/2.0)-(peb_map[i].rad-size_ring/2.0)*(peb_map[i].rad-size_ring/2.0))*LUNIT*LUNIT;
-
+//AREA=M_PI*((peb_map[i].rad+size_ring/2.0)*(peb_map[i].rad+size_ring/2.0)-(peb_map[i].rad-size_ring/2.0)*(peb_map[i].rad-size_ring/2.0))*LUNIT*LUNIT;
+	AREA=dust_budget[i].AREA;
+	fscanf(fp_dust,"%lf",&dust);
+	dust_budget[i].surf_dens[0]=dust;
+	dust_budget[i].rho[0]=dust/height(dust_budget[i].rad_med)/sqrt(2.0*M_PI);
+	dust_budget[i].mass_out=dust*AREA;
+	dust_budget[i].mass_in=0.0;
         for(j=0;j<peb_size_num;j++){
 		fscanf(fp,"%lf",&dens);
 		peb_map[i].surf_dens[j]=dens;
