@@ -30,6 +30,7 @@
 #define outp_time 100
 #define NUM_LIM 100
 #define peb_size_num 60
+#define peb_size_lim 3.0 //in mm
 #define size_step 0.05
 #define dust_gas 0.1
 #define peb_dust 0.01

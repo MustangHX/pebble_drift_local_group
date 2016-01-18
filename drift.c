@@ -39,9 +39,6 @@
 double vr_tau[2]={0.0};
 double tau_temp;
 
-double v_r_gas(double r){
-	return 6.34*pow(r,-0.4);
-}
 
     
 double a_peb(double r){

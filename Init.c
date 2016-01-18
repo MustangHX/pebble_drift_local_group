@@ -130,10 +130,14 @@ void Init2(){// disk with variable resolution
 		if(j==0) printf("hei=%e\t%f\n",peb_map[i].hei[j],peb_map[i].rad_med);
         
 	}
-	for(j=0;j<20;j++) mass_norm+=exp(-1.0*peb_map[i].size_med[j]);
+	for(j=0;j<peb_size_num;j++) {
+		if(peb_map[i].size_med[j]<peb_size_lim){
+			mass_norm+=exp(-1.0*peb_map[i].size_med[j]);
+		}
+	}
         for(j=0;j<peb_size_num;j++){
 		AREA=peb_map[i].AREA;
-		if (j<10 && i > 4) {
+		if (peb_map[i].size_med[j]<peb_size_lim && i > 4) {
 			peb_map[i].mass_out[j]=peb_dust*AREA*(dust_budget[i].surf_dens[0]*exp(-1.0*peb_map[i].size_med[j])/mass_norm+1e-10);
 			//peb_map[i].mass_out[j]=peb_dust*AREA*(0.1*Sigma(peb_map[i].rad_med)*exp(-1.0*peb_map[i].size_med[j])/mass_norm+1e-10);
 //			peb_map[i].mass_out[j]=0.1*AREA*(dust_budget[i].surf_dens[0]+1e-10);

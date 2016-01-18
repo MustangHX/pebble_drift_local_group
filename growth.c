@@ -475,7 +475,7 @@ for(j=0;j<peb_size_num;j++){
 	a_pb2=peb_map[i].size[j+1];
         vr0=vr_estimate(peb_map[i].rad+dr/2.0,a_pb2,pp_vr_tau);
 	tau=pp_vr_tau[1];
-	if(a_pb2>a_max || dust_budget[i].surf_dens[0]< 1e-10) vol_plus=0.0;
+	if(a_pb2>a_max || dust_budget[i].surf_dens[0]< 1e-8) vol_plus=0.0;
 	else{
 		vol_plus=1.0*M_PI*a_pb2*a_pb2*sqrt(vr0*vr0+0.25*tau*vr0*tau*vr0)*dt1*TUNIT;
 	}
@@ -551,11 +551,11 @@ return 1.0;
 void dust_evolve(double dt0){
 
 int i,i_new,j;
-double vr_gas, AREA,old_sigma,frac;
+double vr_g, AREA,old_sigma,frac;
 dust_budget[ring_num-1].mass_out+=mdot*MSUN*dt0*dust_gas;
 for(i=ring_num-1;i>-1;i--){
-	vr_gas=v_r_gas(dust_budget[i].rad)*1;	
-	frac=vr_gas*dt0*TUNIT/LUNIT/dust_budget[i].dr;
+	vr_g=vr_gas(dust_budget[i].rad)*1;	
+	frac=vr_g*dt0*TUNIT/LUNIT/dust_budget[i].dr;
 	i_new=i-1;
 //	frac=0.0;
 	if(i_new<0) i_new=0;

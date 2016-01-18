@@ -60,3 +60,11 @@ return pow(3.0,0.1)*pow(2.0,-0.7)*pow(M_PI,-0.2)\
           *pow(mu*m_p/gamma0/k_B,-0.4)*pow(opa/sig_sb,0.1)*pow(alpha,-0.1)\
           *pow(G*m_star*MUNIT,-0.35)*pow((1-sqrt(r_star*LUNIT/r))*mdot*MUNIT/TUNIT,0.2)*pow(r,1.05); 
 }
+
+double vr_gas (double r){
+        r=r*LUNIT;
+return pow(3.0,1.2)*pow(2.0,-2.4)*pow(M_PI,-0.4)\
+        *pow(mu*m_p/gamma0/k_B,-0.8)*pow(opa/sig_sb,0.2)*pow(alpha,0.8)\
+        *pow(G*m_star*MUNIT,-0.2)*pow((1.0-sqrt(r_star*LUNIT/r)),-0.6)\
+        *pow(mdot*MUNIT/TUNIT,0.4)*pow(r,-0.4);
+}

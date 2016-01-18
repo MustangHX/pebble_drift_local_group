@@ -1,5 +1,5 @@
 #include "global_var.h"
-double drift(double argc,double argc2);
+int drift(double argc,double argc2, double argc3);
 double drag_group(double argc,double argc2);
 double w_K(double argc);
 double density(double argc);
@@ -17,7 +17,7 @@ double grow_3b();
 double grow_3b2();
 void dust_evolve(double argc);
 void check_disk(double argc);
-double v_r_gas(double argc);
+double vr_gas(double argc);
 double height(double argc);
 double coag_kernel(double a_pb1,double a_pb2,double delta_v,double rho1, double rho2, double dt0, double rad);
 void coagulation(double argc);

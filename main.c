@@ -59,7 +59,9 @@ int main(argc, argv)
 	for(j=0;j<peb_size_num;j++){
 		i=ring_num-1;
 		AREA=peb_map[i].AREA;
-		out_source+=AREA*exp(-1.0*peb_map[i].size[j]/0.1);
+		if(peb_map[i].size_med[j]<peb_size_lim){
+		out_source+=AREA*exp(-1.0*peb_map[i].size_med[j]);
+		}
 	}
 
 	fp=fopen("1mm.txt","w");
@@ -133,10 +135,12 @@ int main(argc, argv)
 		
 		if(i==ring_num-1 && 1 && 1) {
 			//peb_map[i].mass_out[j]=0.2*AREA*dust_budget[i].surf_dens*exp(-1.0*peb_map[i].size[j]/0.1)*exp(0.0*num_step/100);
-			peb_map[i].mass_out[j]+=0.01*AREA*MSUN*mdot*dt*exp(-1.0*peb_map[i].size[j]/0.1)/out_source;
+		if(peb_map[i].size_med[j]<peb_size_lim){
+			peb_map[i].mass_out[j]+=dust_gas*peb_dust*AREA*MUNIT*mdot*dt*exp(-1.0*peb_map[i].size_med[j])/out_source;
+			}
 		}
 		else if(i<ring_num-1 && j<10 && 0){
-                        peb_map[i].mass_out[j]=0.1*AREA*dust_budget[i].surf_dens[0]*exp(-1.0*peb_map[i].size[j]/0.1)*exp(0.0*num_step/100);
+                        peb_map[i].mass_out[j]=0.1*AREA*dust_budget[i].surf_dens[0]*exp(-1.0*peb_map[i].size_med[j])*exp(0.0*num_step/100);
 		}
 
 		else peb_map[i].surf_dens[j]+=1e-200;
