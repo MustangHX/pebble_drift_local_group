@@ -4,9 +4,10 @@
 #define alpha 0.001
 #define gamma0 1.4
 #define m_star 1.0
-#define M_PI 3.14159265358979323846264338327950288
+//#define M_PI 3.14159265358979323846264338327950288
 #define AU_km 1.49597871e8
-#define outp_step 1.0  //time step in yr
+#define outp_step 10.0  //output time step in yr
+#define init_step 1.0 //inial time step
 #define LUNIT 1.49597871e13
 #define MSUN 1.9891e33
 #define MUNIT 1.9891e33
@@ -23,7 +24,7 @@
 
 
 
-#define time_yr 20000
+#define time_yr 100000
 #define peb_num 50
 #define size_ring 0.25
 #define size_min 0.1
@@ -34,9 +35,9 @@
 #define size_step 0.05
 #define dust_gas 0.1
 #define peb_dust 0.01
-#define R_OUT 100.0
+#define R_OUT 1.0
 #define r_min 0.1
 #define i_lim1 36
-#define i_lim2 152
-#define ring_num 180
+#define i_lim2 36
+#define ring_num 36
 

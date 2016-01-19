@@ -18,7 +18,7 @@ int main(argc, argv)
 {
 	int i,j,k,n,i_new,j_new,offset_time=0,num_step=0,tot_num_step=(int)(time_yr*1.0/outp_step),check,NbRestart;
 	double AREA,dr=size_ring,a_pb1,a_max,vol_plus,delta_r,delta_size,d_size,ratio_size,frac,frac_s,tau,vr0,vol1,vol2;
-	double coag_eff=1.0,tot_mass=0.0,out_source=0.0,a_p,r0,dt=outp_step,time_sum=0.0,dt2;
+	double coag_eff=1.0,tot_mass=0.0,out_source=0.0,a_p,r0,dt=init_step,time_sum=0.0,dt2;
 	
 	FILE *fp,*fp2,*fp3;
 	char outname[256], outname2[256];
@@ -152,7 +152,7 @@ int main(argc, argv)
 	//frag();
 	num_step++;
 	time_sum+=dt;
-	if(time_sum-floor(time_sum)<0.00001){
+	if(time_sum-floor(time_sum)<0.00001 && ((int)(time_sum))%((int)(outp_step))==0){
 		tot_mass=0.0;
         sprintf(outname,"out_sigma%d.txt",(int)time_sum);
         fp=fopen(outname,"w");
