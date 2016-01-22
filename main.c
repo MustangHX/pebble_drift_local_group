@@ -127,7 +127,7 @@ int main(argc, argv)
 	mass_flow_inner=0.0;
 	for(i=ring_num-1;i>-1;i--){
         for(j=0;j<peb_size_num;j++){
-                if(i==0) mass_flow_inner+=peb_map[i].mass_in[j];
+                if(i==0) mass_flow_inner+=peb_map[i].mass_out[j];
 
 		peb_map[i].mass_out[j]+=peb_map[i].mass_in[j];
 		peb_map[i].mass_in[j]=0.0;
@@ -174,7 +174,7 @@ int main(argc, argv)
 	fprintf(fp3,"%e\t%e\n",dust_budget[i].rad,dust_budget[i].surf_dens[0]);
 	}
 	fprintf(fp2,"%2.20g\n",tot_mass);
-	fprintf(fp4,"%f\t%2.20g\n",time_sum,mass_flow_inner/dt);
+	fprintf(fp4,"%f\t%2.20g\n",time_sum,mass_flow_inner);
 	fclose(fp);
 	fclose(fp2);
 	fclose(fp3);
