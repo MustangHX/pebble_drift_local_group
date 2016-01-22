@@ -17,10 +17,10 @@ int main(argc, argv)
 	char *argv[];
 {
 	int i,j,k,n,i_new,j_new,offset_time=0,num_step=0,tot_num_step=(int)(time_yr*1.0/outp_step),check,NbRestart;
-	double AREA,dr=size_ring,a_pb1,a_max,vol_plus,delta_r,delta_size,d_size,ratio_size,frac,frac_s,tau,vr0,vol1,vol2;
+	double AREA,dr=size_ring,a_pb1,a_max,vol_plus,delta_r,delta_size,d_size,ratio_size,frac,frac_s,tau,vr0,vol1,vol2,mass_flow_inner;
 	double coag_eff=1.0,tot_mass=0.0,out_source=0.0,a_p,r0,dt=init_step,time_sum=0.0,dt2;
 	
-	FILE *fp,*fp2,*fp3;
+	FILE *fp,*fp2,*fp3,*fp4;
 	char outname[256], outname2[256];
 	char output_peb[256];
 	int Restarting = 0,grow_method=3,drift_method=1;;
@@ -124,12 +124,13 @@ int main(argc, argv)
 	}
 	dust_evolve(dt);
 	//coagulation(dt);
-
+	mass_flow_inner=0.0;
 	for(i=ring_num-1;i>-1;i--){
         for(j=0;j<peb_size_num;j++){
+                if(i==0) mass_flow_inner+=peb_map[i].mass_in[j];
+
 		peb_map[i].mass_out[j]+=peb_map[i].mass_in[j];
 		peb_map[i].mass_in[j]=0.0;
-		if(i==0) peb_map[i].mass_out[j]=0.0;
 		//AREA=M_PI*((peb_map[i].rad+dr/2.0)*(peb_map[i].rad+dr/2.0)-(peb_map[i].rad-dr/2.0)*(peb_map[i].rad-dr/2.0))*LUNIT*LUNIT;
 		AREA=peb_map[i].AREA;
 		
@@ -158,6 +159,7 @@ int main(argc, argv)
         fp=fopen(outname,"w");
 	sprintf(outname2,"dust_sigma%d.txt",(int)time_sum);
 	fp3=fopen(outname2,"w");
+	fp4=fopen("mass_flow_inner_ring.txt","a+");
 	fp2=fopen("mass_check.txt","a+");
         for(i=0;i<ring_num;i++){
         for(j=0;j<peb_size_num;j++){
@@ -172,9 +174,11 @@ int main(argc, argv)
 	fprintf(fp3,"%e\t%e\n",dust_budget[i].rad,dust_budget[i].surf_dens[0]);
 	}
 	fprintf(fp2,"%2.20g\n",tot_mass);
+	fprintf(fp4,"%f\t%2.20g\n",time_sum,mass_flow_inner/dt);
 	fclose(fp);
 	fclose(fp2);
 	fclose(fp3);
+	fclose(fp4);
 	printf("%f finished\r",time_sum/(tot_num_step*1.0));
 	printf("Actual time step count:%d\t dt=%f\t time=%f\n",num_step,dt,time_sum);
 	}
