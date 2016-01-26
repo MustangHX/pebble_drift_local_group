@@ -30,14 +30,14 @@
 #define size_min 0.1
 #define outp_time 100
 #define NUM_LIM 100
-#define peb_size_num 60
-#define peb_size_lim 3.0 //in mm
+#define peb_size_num 50
+#define peb_size_lim 0.3 //in cm
 #define size_step 0.05
-#define dust_gas 0.1
+#define dust_gas 0.01
 #define peb_dust 0.01
-#define R_OUT 1.0
+#define R_OUT 30.0
 #define r_min 0.1
 #define i_lim1 36
-#define i_lim2 36
-#define ring_num 36
+#define i_lim2 152
+#define ring_num 152
 

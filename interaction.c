@@ -2,6 +2,7 @@
 #include "global_ex.h"
 #include "global_var.h"
 #include<math.h>
+#include<stdio.h>
 void frag(){
 int i,j,k,jl,js;
 double size_lim,frac,AREA,dr,delta_mass;
@@ -51,7 +52,7 @@ void coagulation(double dt0){
 	double tau,vol_plus,frac,frac_s,coag_eff,ratio_size,ring_mass_before,ring_mass_after,old_sigma,ratio_sigma=1.0,dust_flow=0.0,mass0;
 	double peb_flow[peb_size_num]={0.0};
 	
-	for (i=ring_num-1;i>=0;i--){
+	for (i=ring_num-1;i>=10;i--){
 		dr=peb_map[i].dr;
 		for(j=peb_size_num-1;j>=1;j--){
 			if(peb_map[i].surf_dens[j] < 1e-5) continue;

@@ -18,7 +18,7 @@ int main(argc, argv)
 {
 	int i,j,k,n,i_new,j_new,offset_time=0,num_step=0,tot_num_step=(int)(time_yr*1.0/init_step),check,NbRestart;
 	double AREA,dr=size_ring,a_pb1,a_max,vol_plus,delta_r,delta_size,d_size,ratio_size,frac,frac_s,tau,vr0,vol1,vol2,mass_flow_inner;
-	double coag_eff=1.0,tot_mass=0.0,out_source=0.0,a_p,r0,dt=init_step,time_sum=0.0,dt2;
+	double coag_eff=1.0,tot_mass=0.0,out_source=0.0,a_p,r0,dt=init_step,time_sum=0.0,dt2,tot_mass_dust;
 	
 	FILE *fp,*fp2,*fp3,*fp4;
 	char outname[256], outname2[256];
@@ -123,7 +123,7 @@ int main(argc, argv)
 		}
 	}
 	dust_evolve(dt);
-	//coagulation(dt);
+	coagulation(dt);
 	mass_flow_inner=0.0;
 	for(i=ring_num-1;i>-1;i--){
         for(j=0;j<peb_size_num;j++){
@@ -137,7 +137,7 @@ int main(argc, argv)
 		if(i==ring_num-1 && 1 && 1) {
 			//peb_map[i].mass_out[j]=0.2*AREA*dust_budget[i].surf_dens*exp(-1.0*peb_map[i].size[j]/0.1)*exp(0.0*num_step/100);
 		if(peb_map[i].size_med[j]<peb_size_lim){
-			peb_map[i].mass_out[j]+=dust_gas*peb_dust*AREA*MUNIT*mdot*dt*exp(-1.0*peb_map[i].size_med[j])/out_source;
+			peb_map[i].mass_out[j]+=0.0*dust_gas*peb_dust*AREA*MUNIT*mdot*dt*exp(-1.0*peb_map[i].size_med[j])/out_source;
 			}
 		}
 		else if(i<ring_num-1 && j<10 && 0){
@@ -155,6 +155,7 @@ int main(argc, argv)
 	time_sum+=dt;
 	if(time_sum-floor(time_sum)<0.00001 && ((int)(time_sum))%((int)(outp_step))==0){
 		tot_mass=0.0;
+		tot_mass_dust=0.0;
         sprintf(outname,"out_sigma%d.txt",(int)time_sum);
         fp=fopen(outname,"w");
 	sprintf(outname2,"dust_sigma%d.txt",(int)time_sum);
@@ -170,10 +171,10 @@ int main(argc, argv)
         fprintf(fp,"\n");		
 	}
 	for(i=0;i<ring_num;i++){
-		tot_mass+=dust_budget[i].mass_out;
+		tot_mass_dust+=dust_budget[i].mass_out;
 	fprintf(fp3,"%e\t%e\n",dust_budget[i].rad,dust_budget[i].surf_dens[0]);
 	}
-	fprintf(fp2,"%2.20g\n",tot_mass);
+	fprintf(fp2,"%2.20g\t%2.20g\t%2.20g\n",tot_mass,tot_mass_dust,tot_mass+tot_mass_dust);
 	fprintf(fp4,"%f\t%2.20g\n",time_sum,mass_flow_inner);
 	fclose(fp);
 	fclose(fp2);

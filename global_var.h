@@ -41,5 +41,5 @@ typedef struct DUST_MAP{
 } DUST_MAP;
 extern PEBBLE peb_group[peb_num];
 extern PEBBLE_MAP peb_map[ring_num];
-extern DUST_MAP dust_budget[peb_num];
+extern DUST_MAP dust_budget[ring_num];
 #endif
