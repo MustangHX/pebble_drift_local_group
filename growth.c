@@ -559,7 +559,7 @@ void dust_evolve(double dt0){
 
 int i,i_new,j;
 double vr_g, AREA,old_sigma,frac;
-dust_budget[ring_num-1].mass_out+=0.0*mdot*MSUN*dt0*dust_gas;
+dust_budget[ring_num-1].mass_out+=1.0*mdot*MSUN*dt0*dust_gas;
 for(i=ring_num-1;i>-1;i--){
 	vr_g=vr_gas(dust_budget[i].rad)*1;	
 	frac=vr_g*dt0*TUNIT/LUNIT/dust_budget[i].dr;

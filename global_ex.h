@@ -24,7 +24,7 @@
 
 
 
-#define time_yr 100000
+#define time_yr 1000000
 #define peb_num 50
 #define size_ring 0.25
 #define size_min 0.1

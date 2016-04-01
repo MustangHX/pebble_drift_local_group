@@ -173,7 +173,7 @@ void Init2(){// disk with variable resolution
 	fclose(fp);
 }
 void Restart(int rnum){
-	double AREA,dens,dust;
+	double AREA,dens,dust,rad;
 	int i,j,k;
 	FILE *fp,*fp_dust;
 	char name[256],name1[256];
@@ -186,7 +186,7 @@ void Restart(int rnum){
         for(i=0;i<ring_num;i++){
 //AREA=M_PI*((peb_map[i].rad+size_ring/2.0)*(peb_map[i].rad+size_ring/2.0)-(peb_map[i].rad-size_ring/2.0)*(peb_map[i].rad-size_ring/2.0))*LUNIT*LUNIT;
 	AREA=dust_budget[i].AREA;
-	fscanf(fp_dust,"%lf",&dust);
+	fscanf(fp_dust,"%lf%lf",&rad,&dust);
 	dust_budget[i].surf_dens[0]=dust;
 	dust_budget[i].rho[0]=dust/height(dust_budget[i].rad_med)/sqrt(2.0*M_PI);
 	dust_budget[i].mass_out=dust*AREA;

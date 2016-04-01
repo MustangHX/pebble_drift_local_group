@@ -137,7 +137,7 @@ int main(argc, argv)
 		if(i==ring_num-1 && 1 && 1) {
 			//peb_map[i].mass_out[j]=0.2*AREA*dust_budget[i].surf_dens*exp(-1.0*peb_map[i].size[j]/0.1)*exp(0.0*num_step/100);
 		if(peb_map[i].size_med[j]<peb_size_lim){
-			peb_map[i].mass_out[j]+=0.0*dust_gas*peb_dust*AREA*MUNIT*mdot*dt*exp(-1.0*peb_map[i].size_med[j])/out_source;
+			peb_map[i].mass_out[j]+=1.0*dust_gas*peb_dust*AREA*MUNIT*mdot*dt*exp(-1.0*peb_map[i].size_med[j])/out_source;
 			}
 		}
 		else if(i<ring_num-1 && j<10 && 0){
