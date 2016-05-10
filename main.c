@@ -60,7 +60,7 @@ int main(argc, argv)
 		i=ring_num-1;
 		AREA=peb_map[i].AREA;
 		if(peb_map[i].size_med[j]<peb_size_lim){
-		out_source+=AREA*exp(-1.0*peb_map[i].size_med[j]);
+		out_source+=AREA*exp(-1.0*size_slope*size_slope*peb_map[i].size_med[j]);
 		}
 	}
 
@@ -84,6 +84,18 @@ int main(argc, argv)
 	}
 	fclose(fp);
 
+	fp=fopen("gas_vr.txt","w");
+	for(i=0;i<ring_num;i++){
+	fprintf(fp,"%f\t%g\t%g\n",dust_budget[i].rad_med,vr_gas(dust_budget[i].rad_med),vr_gas(dust_budget[i].rad_med)*TUNIT/LUNIT);
+	}
+	fclose(fp);
+	fp=fopen("gas_dust_density.txt","w");
+        for(i=0;i<ring_num;i++){
+        fprintf(fp,"%f\t%g\t%g\n",dust_budget[i].rad_med,Sigma(dust_budget[i].rad_med),dust_budget[i].surf_dens[0]);
+        }
+        fclose(fp);
+	stokes_size();
+	tau_unity();
 	num_step=0;
 	if(Restarting == 1){
 		num_step=NbRestart;
@@ -114,7 +126,7 @@ int main(argc, argv)
 	if(grow_method==1){grow_1();}
 	if(grow_method==3){
 		dt2=dt;
-		dt=grow_3b2(dt2);
+		dt=grow_3b_ada(dt2);
 		//printf("main dt=%f\tdt2=%f\n",dt,dt2);
 		//dt=1.0;
 		if(dt<0.0) { 
@@ -123,7 +135,7 @@ int main(argc, argv)
 		}
 	}
 	dust_evolve(dt);
-	coagulation(dt);
+	//coagulation(dt);
 	mass_flow_inner=0.0;
 	for(i=ring_num-1;i>-1;i--){
         for(j=0;j<peb_size_num;j++){
@@ -137,14 +149,14 @@ int main(argc, argv)
 		if(i==ring_num-1 && 1 && 1) {
 			//peb_map[i].mass_out[j]=0.2*AREA*dust_budget[i].surf_dens*exp(-1.0*peb_map[i].size[j]/0.1)*exp(0.0*num_step/100);
 		if(peb_map[i].size_med[j]<peb_size_lim){
-			peb_map[i].mass_out[j]+=1.0*dust_gas*peb_dust*AREA*MUNIT*mdot*dt*exp(-1.0*peb_map[i].size_med[j])/out_source;
+			peb_map[i].mass_out[j]+=1.0*dust_gas*peb_dust*AREA*MUNIT*mdot*dt*exp(-1.0*size_slope*peb_map[i].size_med[j])/out_source;
 			}
 		}
 		else if(i<ring_num-1 && j<10 && 0){
-                        peb_map[i].mass_out[j]=0.1*AREA*dust_budget[i].surf_dens[0]*exp(-1.0*peb_map[i].size_med[j])*exp(0.0*num_step/100);
+                        peb_map[i].mass_out[j]=0.1*AREA*dust_budget[i].surf_dens[0]*exp(-1.0*size_slope*peb_map[i].size_med[j])*exp(0.0*num_step/100);
 		}
 
-		else peb_map[i].surf_dens[j]+=1e-200;
+		else peb_map[i].surf_dens[j]+=peb_low_lim/10;
 		peb_map[i].surf_dens[j]=peb_map[i].mass_out[j]/AREA;
 		peb_map[i].rho[j]=peb_map[i].surf_dens[j]/sqrt(2.0*M_PI)/peb_map[i].hei[j];
 		//printf("peb_rho=%e\t%e\t",peb_map[i].rho[j],peb_map[i].surf_dens[j]);
@@ -164,7 +176,7 @@ int main(argc, argv)
 	fp2=fopen("mass_check.txt","a+");
         for(i=0;i<ring_num;i++){
         for(j=0;j<peb_size_num;j++){
-		if(peb_map[i].surf_dens[j] < 1e-200) peb_map[i].surf_dens[j]=1e-200;
+		if(peb_map[i].surf_dens[j] < peb_low_lim) peb_map[i].surf_dens[j]=peb_low_lim;
         fprintf(fp,"%e\t",peb_map[i].surf_dens[j]);
 		tot_mass+=peb_map[i].mass_out[j];
 	}

@@ -2,6 +2,7 @@
 #ifndef PEB_STRUCT
 #define PEB_STRUCT
 extern double peb_cont[100][100];
+extern double dt_ring[ring_num];
 typedef struct PEBBLE{
 	int max_step;
 	double mass[time_yr];
